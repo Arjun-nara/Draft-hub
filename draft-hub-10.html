@@ -531,7 +531,7 @@ body {
       <div class="filter-module-title">Filters</div>
       <div class="filter-row">
         <span class="filter-row-label">Team</span>
-        <select class="filter-select" onchange="applyFilters()">
+        <select id="side-team" class="filter-select" onchange="applyFilters(this)">
           <option value="">All</option>
           <option>Raiders</option><option>Jets</option><option>Cardinals</option><option>Titans</option>
           <option>Giants</option><option>Browns</option><option>Commanders</option><option>Saints</option>
@@ -542,7 +542,7 @@ body {
           <option>Texans</option><option>Patriots</option><option>Seahawks</option>
         </select>
         <span class="filter-row-label" style="min-width:52px;">Position</span>
-        <select class="filter-select" onchange="applyFilters()">
+        <select id="side-pos" class="filter-select" onchange="applyFilters(this)">
           <option value="">All</option>
           <option value="qb">QB</option><option value="wr">WR</option><option value="rb">RB</option>
           <option value="te">TE</option><option value="edge">Edge</option><option value="lb">LB</option>
@@ -552,7 +552,7 @@ body {
       </div>
       <div class="filter-row">
         <span class="filter-row-label">School</span>
-        <select class="filter-select" onchange="applyFilters()">
+        <select id="side-school" class="filter-select" onchange="applyFilters(this)">
           <option value="">All</option>
           <option>Alabama</option><option>Arizona St.</option><option>Auburn</option><option>Clemson</option>
           <option>Florida</option><option>Georgia</option><option>Indiana</option><option>LSU</option>
@@ -563,13 +563,13 @@ body {
       </div>
       <div class="filter-row">
         <span class="filter-row-label">Round</span>
-        <select class="filter-select" onchange="applyFilters()">
+        <select id="side-round" class="filter-select" onchange="applyFilters(this)">
           <option value="1">Round 1</option><option value="">All Rounds</option>
         </select>
       </div>
       <div class="filter-row">
         <span class="filter-row-label">Attributes</span>
-        <select class="filter-select" style="flex:1;" onchange="applyFilters()">
+        <select id="side-attr" class="filter-select" style="flex:1;" onchange="applyFilters(this)">
           <option value="">All Attributes</option>
           <option>Brick House</option><option>Dancing Bear</option><option>Chameleon</option>
           <option>Rocket</option><option>Gumby</option><option>Glove</option><option>Clamps</option>
@@ -604,11 +604,11 @@ body {
       <div class="center-col-meta">32 prospects · Round 1</div>
     </div>
     <div class="desktop-filters" id="tabletFilters">
-      <select class="filter-select" id="tab-team" onchange="applyFilters()"><option value="">All Teams</option><option>Raiders</option><option>Jets</option><option>Cardinals</option><option>Titans</option><option>Giants</option><option>Browns</option><option>Commanders</option><option>Saints</option><option>Chiefs</option><option>Bengals</option><option>Dolphins</option><option>Cowboys</option><option>Rams</option><option>Ravens</option><option>Buccaneers</option><option>Lions</option><option>Vikings</option><option>Panthers</option><option>Steelers</option><option>Chargers</option><option>Eagles</option><option>Bears</option><option>Bills</option><option>49ers</option><option>Texans</option><option>Patriots</option><option>Seahawks</option></select>
-      <select class="filter-select" id="tab-pos" onchange="applyFilters()"><option value="">All Positions</option><option value="qb">QB</option><option value="wr">WR</option><option value="rb">RB</option><option value="te">TE</option><option value="edge">Edge</option><option value="lb">LB</option><option value="cb">CB</option><option value="s">S</option><option value="ot">OT</option><option value="ol">OL</option><option value="g">G</option><option value="dl">DL</option><option value="dt">DT</option></select>
-      <select class="filter-select" id="tab-school" onchange="applyFilters()"><option value="">All Schools</option><option>Alabama</option><option>Arizona St.</option><option>Auburn</option><option>Clemson</option><option>Florida</option><option>Georgia</option><option>Indiana</option><option>LSU</option><option>Miami (FL)</option><option>Notre Dame</option><option>Ohio St.</option><option>Oregon</option><option>Penn St.</option><option>Tennessee</option><option>Texas</option><option>Texas A&amp;M</option><option>Texas Tech</option><option>Toledo</option><option>Utah</option><option>Washington</option></select>
-      <select class="filter-select" id="tab-round" onchange="applyFilters()"><option value="1">Round 1</option><option value="">All Rounds</option></select>
-      <select class="filter-select" id="tab-attr" onchange="applyFilters()"><option value="">All Attributes</option><option>Brick House</option><option>Dancing Bear</option><option>Chameleon</option><option>Rocket</option><option>Gumby</option><option>Glove</option><option>Clamps</option><option>Speed Demon</option><option>Professor X</option><option>Magnets</option><option>Dart Thrower</option><option>Howitzer</option><option>Phonebooth</option><option>Road-Grader</option></select>
+      <select class="filter-select" id="tab-team" onchange="applyFilters(this)"><option value="">All Teams</option><option>Raiders</option><option>Jets</option><option>Cardinals</option><option>Titans</option><option>Giants</option><option>Browns</option><option>Commanders</option><option>Saints</option><option>Chiefs</option><option>Bengals</option><option>Dolphins</option><option>Cowboys</option><option>Rams</option><option>Ravens</option><option>Buccaneers</option><option>Lions</option><option>Vikings</option><option>Panthers</option><option>Steelers</option><option>Chargers</option><option>Eagles</option><option>Bears</option><option>Bills</option><option>49ers</option><option>Texans</option><option>Patriots</option><option>Seahawks</option></select>
+      <select class="filter-select" id="tab-pos" onchange="applyFilters(this)"><option value="">All Positions</option><option value="qb">QB</option><option value="wr">WR</option><option value="rb">RB</option><option value="te">TE</option><option value="edge">Edge</option><option value="lb">LB</option><option value="cb">CB</option><option value="s">S</option><option value="ot">OT</option><option value="ol">OL</option><option value="g">G</option><option value="dl">DL</option><option value="dt">DT</option></select>
+      <select class="filter-select" id="tab-school" onchange="applyFilters(this)"><option value="">All Schools</option><option>Alabama</option><option>Arizona St.</option><option>Auburn</option><option>Clemson</option><option>Florida</option><option>Georgia</option><option>Indiana</option><option>LSU</option><option>Miami (FL)</option><option>Notre Dame</option><option>Ohio St.</option><option>Oregon</option><option>Penn St.</option><option>Tennessee</option><option>Texas</option><option>Texas A&amp;M</option><option>Texas Tech</option><option>Toledo</option><option>Utah</option><option>Washington</option></select>
+      <select class="filter-select" id="tab-round" onchange="applyFilters(this)"><option value="1">Round 1</option><option value="">All Rounds</option></select>
+      <select class="filter-select" id="tab-attr" onchange="applyFilters(this)"><option value="">All Attributes</option><option>Brick House</option><option>Dancing Bear</option><option>Chameleon</option><option>Rocket</option><option>Gumby</option><option>Glove</option><option>Clamps</option><option>Speed Demon</option><option>Professor X</option><option>Magnets</option><option>Dart Thrower</option><option>Howitzer</option><option>Phonebooth</option><option>Road-Grader</option></select>
     </div>
     <div id="cards-container"></div>
   </div>
@@ -634,11 +634,11 @@ body {
 
 <!-- MOBILE FILTER BAR -->
 <div class="mobile-filter-bar" id="mobileFilters">
-  <select class="filter-select" id="mob-team" onchange="applyFilters()"><option value="">Team</option><option>Raiders</option><option>Jets</option><option>Cardinals</option><option>Titans</option><option>Giants</option><option>Browns</option><option>Commanders</option><option>Saints</option><option>Chiefs</option><option>Bengals</option><option>Dolphins</option><option>Cowboys</option><option>Rams</option><option>Ravens</option><option>Buccaneers</option><option>Lions</option><option>Vikings</option><option>Panthers</option><option>Steelers</option><option>Chargers</option><option>Eagles</option><option>Bears</option><option>Bills</option><option>49ers</option><option>Texans</option><option>Patriots</option><option>Seahawks</option></select>
-  <select class="filter-select" id="mob-pos" onchange="applyFilters()"><option value="">Position</option><option value="qb">QB</option><option value="wr">WR</option><option value="rb">RB</option><option value="te">TE</option><option value="edge">Edge</option><option value="lb">LB</option><option value="cb">CB</option><option value="s">S</option><option value="ot">OT</option><option value="ol">OL</option><option value="g">G</option><option value="dl">DL</option><option value="dt">DT</option></select>
-  <select class="filter-select" id="mob-school" onchange="applyFilters()"><option value="">School</option><option>Alabama</option><option>Arizona St.</option><option>Auburn</option><option>Clemson</option><option>Florida</option><option>Georgia</option><option>Indiana</option><option>LSU</option><option>Miami (FL)</option><option>Notre Dame</option><option>Ohio St.</option><option>Oregon</option><option>Penn St.</option><option>Tennessee</option><option>Texas</option><option>Texas A&amp;M</option><option>Texas Tech</option><option>Toledo</option><option>Utah</option><option>Washington</option></select>
-  <select class="filter-select" id="mob-round" onchange="applyFilters()"><option value="1">Round 1</option><option value="">All Rounds</option></select>
-  <select class="filter-select" id="mob-attr" onchange="applyFilters()"><option value="">Attributes</option><option>Brick House</option><option>Dancing Bear</option><option>Chameleon</option><option>Rocket</option><option>Gumby</option><option>Glove</option><option>Clamps</option><option>Speed Demon</option><option>Professor X</option><option>Magnets</option><option>Dart Thrower</option><option>Howitzer</option><option>Phonebooth</option><option>Road-Grader</option></select>
+  <select class="filter-select" id="mob-team" onchange="applyFilters(this)"><option value="">Team</option><option>Raiders</option><option>Jets</option><option>Cardinals</option><option>Titans</option><option>Giants</option><option>Browns</option><option>Commanders</option><option>Saints</option><option>Chiefs</option><option>Bengals</option><option>Dolphins</option><option>Cowboys</option><option>Rams</option><option>Ravens</option><option>Buccaneers</option><option>Lions</option><option>Vikings</option><option>Panthers</option><option>Steelers</option><option>Chargers</option><option>Eagles</option><option>Bears</option><option>Bills</option><option>49ers</option><option>Texans</option><option>Patriots</option><option>Seahawks</option></select>
+  <select class="filter-select" id="mob-pos" onchange="applyFilters(this)"><option value="">Position</option><option value="qb">QB</option><option value="wr">WR</option><option value="rb">RB</option><option value="te">TE</option><option value="edge">Edge</option><option value="lb">LB</option><option value="cb">CB</option><option value="s">S</option><option value="ot">OT</option><option value="ol">OL</option><option value="g">G</option><option value="dl">DL</option><option value="dt">DT</option></select>
+  <select class="filter-select" id="mob-school" onchange="applyFilters(this)"><option value="">School</option><option>Alabama</option><option>Arizona St.</option><option>Auburn</option><option>Clemson</option><option>Florida</option><option>Georgia</option><option>Indiana</option><option>LSU</option><option>Miami (FL)</option><option>Notre Dame</option><option>Ohio St.</option><option>Oregon</option><option>Penn St.</option><option>Tennessee</option><option>Texas</option><option>Texas A&amp;M</option><option>Texas Tech</option><option>Toledo</option><option>Utah</option><option>Washington</option></select>
+  <select class="filter-select" id="mob-round" onchange="applyFilters(this)"><option value="1">Round 1</option><option value="">All Rounds</option></select>
+  <select class="filter-select" id="mob-attr" onchange="applyFilters(this)"><option value="">Attributes</option><option>Brick House</option><option>Dancing Bear</option><option>Chameleon</option><option>Rocket</option><option>Gumby</option><option>Glove</option><option>Clamps</option><option>Speed Demon</option><option>Professor X</option><option>Magnets</option><option>Dart Thrower</option><option>Howitzer</option><option>Phonebooth</option><option>Road-Grader</option></select>
 </div>
 
 <script>
@@ -743,16 +743,15 @@ function react(el) {
   el.closest('.reactions-row').querySelectorAll('.reaction-item').forEach(r=>r.classList.remove('active'));
   el.classList.add('active');
 }
-function applyFilters() {
-  const pos = document.querySelector('[id$="-pos"]')?.value || '';
-  const team = document.querySelector('[id$="-team"]')?.value || '';
-  const school = document.querySelector('[id$="-school"]')?.value || '';
-  const round = document.querySelector('[id$="-round"]')?.value || '';
-  const attr = document.querySelector('[id$="-attr"]')?.value || '';
-  ['team','pos','school','round','attr'].forEach(key => {
-    const val = {team,pos,school,round,attr}[key];
-    document.querySelectorAll('[id$="-'+key+'"]').forEach(el=>{el.value=val;});
-  });
+function applyFilters(src) {
+  // Sync the changed filter across all filter sets (sidebar, tablet, mobile)
+  if (src && src.id) {
+    const key = src.id.replace(/^[^-]+-/, '');
+    document.querySelectorAll('[id$="-' + key + '"]').forEach(el => { el.value = src.value; });
+  }
+  // Read current values from any matching select
+  const val = k => document.querySelector('[id$="-' + k + '"]')?.value || '';
+  const pos = val('pos'), team = val('team'), school = val('school'), round = val('round'), attr = val('attr');
   document.querySelectorAll('.player-card').forEach(card => {
     let show = true;
     if (pos && card.dataset.pos !== pos) show = false;
