@@ -693,7 +693,7 @@ function buildCard(p) {
     <div class="card-comparisons">
       <div class="section-heading">Player Comps</div>
       <div class="comps-row">
-        ${p.comps.map(c=>`<div class="comp-card"><div class="comp-avatar"></div><div class="comp-info"><div class="comp-name">${c[0]}</div><div class="comp-pct">${c[1]}% match</div></div></div>`).join('')}
+        ${p.comps.map(c=>`<div class="comp-card"><div class="comp-avatar"></div><div class="comp-info"><div class="comp-name">${c[0]}</div></div></div>`).join('')}
       </div>
     </div>` : '';
   const attrNames = p.attrs.map(a=>a[1]).join(' ');
