@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Draft Hub — v10</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background: #f0f2f5;
+  color: #1a1a2e;
+  min-height: 100vh;
+  /* space for sticky filter bar on mobile */
+  padding-bottom: 0;
+}
+
+/* ─── SITE CHROME ─── */
+.site-header {
+  background: #3a0099;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  gap: 20px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+.site-header .logo { color: white; font-weight: 800; font-size: 18px; letter-spacing: -0.5px; }
+.site-header nav { display: flex; gap: 16px; }
+.site-header nav a { color: rgba(255,255,255,0.7); font-size: 12px; font-weight: 600; text-decoration: none; }
+.site-header nav a.active { color: white; }
+.draft-banner { background: #1B2B4B; text-align: center; padding: 7px; font-size: 12px; font-weight: 700; color: white; }
+.draft-banner span { color: #7cb3ff; }
+
+/* ─── PAGE LAYOUT ─── */
+.page-body {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 20px 16px;
+  display: grid;
+  grid-template-columns: 26fr 53fr 26fr;
+  gap: 20px;
+  align-items: start;
+}
+
+/* ─── SIDE COLUMNS ─── */
+.col-label { font-size: 10px; font-weight: 700; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+.side-module { background: white; border-radius: 8px; border: 1px solid #e5e7eb; padding: 12px; margin-bottom: 12px; }
+.side-module-title { font-size: 10px; font-weight: 700; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+.side-player-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid #f3f4f6; cursor: pointer; }
+.side-player-row:last-child { border-bottom: none; }
+.side-rank { font-size: 11px; font-weight: 700; color: #9ca3af; width: 16px; flex-shrink: 0; }
+.side-avatar { width: 30px; height: 30px; border-radius: 50%; background: #e5e7eb; overflow: hidden; flex-shrink: 0; }
+.side-avatar img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+.side-info { flex: 1; min-width: 0; }
+.side-name { font-size: 11px; font-weight: 600; color: #374151; }
+.side-meta { font-size: 10px; color: #9ca3af; }
+.side-val { font-size: 11px; font-weight: 700; color: #5B0DCC; margin-left: auto; flex-shrink: 0; }
+.side-val.up { color: #059669; }
+.side-val.dn { color: #dc2626; }
+.deep-dive-item { font-size: 11px; line-height: 1.55; color: #374151; padding: 7px 0; border-bottom: 1px solid #f3f4f6; cursor: pointer; }
+.deep-dive-item:last-child { border-bottom: none; }
+.deep-dive-item:hover { color: #5B0DCC; }
+
+/* ─── FILTER DROPDOWNS ─── */
+.filter-module-title {
+  font-size: 13px;
+  font-weight: 800;
+  color: #111827;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #e5e7eb;
+}
+.filter-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+.filter-row:last-of-type { margin-bottom: 0; }
+.filter-row-label {
+  font-size: 12px;
+  color: #6b7280;
+  font-weight: 500;
+  min-width: 62px;
+  flex-shrink: 0;
+}
+.filter-select {
+  -webkit-appearance: none;
+  appearance: none;
+  background-color: #f3f4f6;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M6 9l6 6 6-6' stroke='%23111827' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 20px;
+  padding: 6px 30px 6px 14px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  color: #111827;
+  cursor: pointer;
+  transition: border-color 0.12s;
+}
+.filter-select:focus { outline: none; border-color: #5B0DCC; }
+.filter-select:hover { border-color: #9ca3af; }
+
+/* View toggle */
+.view-toggle { display: flex; gap: 8px; }
+.view-btn {
+  flex: 1;
+  padding: 9px 12px;
+  border-radius: 20px;
+  border: 1.5px solid #e5e7eb;
+  background: white;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  color: #6b7280;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.12s;
+}
+.view-btn.active { background: #5B0DCC; border-color: #5B0DCC; color: white; }
+
+/* ─── DESKTOP FILTER ROW (tablet) ─── */
+.desktop-filters {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 10px 14px;
+}
+.desktop-filters .filter-select {
+  flex: 1;
+  min-width: 100px;
+}
+
+/* Center column header */
+.center-col-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.center-col-title { font-size: 14px; font-weight: 800; color: #1B2B4B; }
+.center-col-meta { font-size: 11px; color: #9ca3af; }
+
+/* ─── PLAYER CARD ─── */
+.player-card {
+  background: white;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+  margin-bottom: 10px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  transition: box-shadow 0.15s;
+}
+.player-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+
+/* Condensed view */
+.player-card.condensed .card-top-row { display: none; }
+.player-card.condensed .card-comparisons { display: none; }
+.player-card.condensed .card-report-btn { display: none; }
+.player-card.condensed .card-header { padding: 10px 14px; }
+
+/* Card header */
+.card-header {
+  background: #0f1e35;
+  color: white;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.pick-badge { font-size: 9px; font-weight: 700; color: rgba(255,255,255,0.5); letter-spacing: 0.3px; flex-shrink: 0; }
+.header-team-logo { width: 26px; height: 26px; border-radius: 50%; background: rgba(255,255,255,0.1); flex-shrink: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.header-team-logo img { width: 22px; height: 22px; object-fit: contain; }
+.header-name { flex: 1; min-width: 0; }
+.card-name { font-size: 15px; font-weight: 800; }
+.card-pos-school { font-size: 10px; color: rgba(255,255,255,0.55); }
+.header-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.pos-badge { font-size: 9px; font-weight: 800; padding: 2px 7px; border-radius: 3px; letter-spacing: 0.5px; }
+.pos-edge { background: #5B0DCC; color: white; }
+.pos-wr   { background: #d97706; color: white; }
+.pos-qb   { background: #dc2626; color: white; }
+.pos-rb   { background: #059669; color: white; }
+.card-header-link { font-size: 10px; color: rgba(255,255,255,0.4); text-decoration: none; }
+.card-header-link:hover { color: #7cb3ff; }
+
+/* ─── SECTION HEADING ─── */
+.section-heading { font-size: 11px; font-weight: 800; color: #111827; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 7px; }
+
+/* ─── CARD TOP ROW: photo | team fit + attrs ─── */
+.card-top-row {
+  display: flex;
+  align-items: stretch;
+  border-bottom: 1px solid #f0f2f5;
+}
+
+/* Photo column */
+.card-photo-col {
+  width: 190px;
+  flex-shrink: 0;
+  border-right: 1px solid #f0f2f5;
+  display: flex;
+  flex-direction: column;
+}
+.player-photo {
+  flex: 1;
+  min-height: 140px;
+  overflow: hidden;
+  background: linear-gradient(160deg, #1B2B4B 0%, #2d3f63 100%);
+  position: relative;
+}
+.player-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  display: block;
+}
+.phys-row {
+  display: flex;
+  background: #f8f9fb;
+  border-top: 1px solid #f0f2f5;
+  flex-shrink: 0;
+}
+.phys-item { flex: 1; text-align: center; padding: 7px 4px; border-right: 1px solid #ebebeb; }
+.phys-item:last-child { border-right: none; }
+.phys-val { font-size: 12px; font-weight: 800; color: #1B2B4B; line-height: 1.2; }
+.phys-lbl { font-size: 7px; color: #9ca3af; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; }
+
+/* Content column: team fit + attributes */
+.card-content-col {
+  flex: 1;
+  padding: 14px 16px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.team-fit-text { font-size: 12px; line-height: 1.65; color: #4b5563; }
+
+/* Attribute pills */
+.attrs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+.attr-pill {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  background: white;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+.attr-emoji { font-size: 18px; line-height: 1; flex-shrink: 0; }
+.attr-text { font-size: 11px; font-weight: 700; color: #1B2B4B; line-height: 1.35; }
+.pos-lb  { background: #1B2B4B; color: white; }
+.pos-cb  { background: #0284c7; color: white; }
+.pos-s   { background: #0284c7; color: white; }
+.pos-ot  { background: #374151; color: white; }
+.pos-ol  { background: #374151; color: white; }
+.pos-g   { background: #374151; color: white; }
+.pos-dl  { background: #7c3aed; color: white; }
+.pos-dt  { background: #7c3aed; color: white; }
+.pos-te  { background: #b45309; color: white; }
+
+/* ─── PLAYER COMPARISONS ─── */
+.card-comparisons { padding: 12px 16px; border-bottom: 1px solid #f0f2f5; }
+.comps-row { display: flex; gap: 8px; }
+.comp-card {
+  flex: 1;
+  max-width: calc((100% - 16px) / 3);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f8f9fb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 8px 10px;
+  min-width: 0;
+}
+.comp-avatar {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: #d1d5db;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.comp-avatar img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+.comp-info { min-width: 0; }
+.comp-name { font-size: 11px; font-weight: 700; color: #1B2B4B; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.comp-pct { font-size: 10px; color: #5B0DCC; font-weight: 700; }
+
+/* ─── CTA ─── */
+.card-cta { padding: 12px 16px 14px; display: flex; justify-content: center; }
+.report-btn {
+  padding: 9px 28px;
+  background: transparent;
+  border: 1.5px solid #5B0DCC;
+  color: #5B0DCC;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background 0.12s;
+  display: flex; align-items: center; gap: 5px;
+}
+.report-btn:hover { background: #f5f3ff; }
+.report-btn .chev { transition: transform 0.2s; }
+.player-card.expanded .report-btn .chev { transform: rotate(180deg); }
+
+/* ─── EXPANDED SECTIONS ─── */
+.expanded-sections { display: none; }
+.player-card.expanded .expanded-sections { display: block; }
+
+.exp-section { padding: 14px 16px; border-top: 1px solid #f0f2f5; }
+.exp-sec-heading { font-size: 11px; font-weight: 800; color: #111827; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 10px; }
+.scouting-text { font-size: 12px; line-height: 1.7; color: #4b5563; }
+
+/* Season stats grid */
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.sg-item { background: #f8f9fb; border: 1px solid #e5e7eb; border-radius: 7px; padding: 9px 6px; text-align: center; }
+.sg-val { font-size: 14px; font-weight: 800; color: #1B2B4B; }
+.sg-lbl { font-size: 8px; color: #9ca3af; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; }
+
+/* Draft reactions */
+.reactions-row { display: flex; gap: 6px; }
+.reaction-item {
+  flex: 1;
+  background: #f8f9fb;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 8px 4px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.12s, background 0.12s;
+}
+.reaction-item:hover { background: #f0eeff; border-color: #c4b0ff; }
+.reaction-item.active { background: #f0eeff; border-color: #5B0DCC; }
+.reaction-emoji { font-size: 18px; line-height: 1; margin-bottom: 3px; }
+.reaction-label { font-size: 9px; font-weight: 700; color: #6b7280; margin-bottom: 2px; }
+.reaction-pct { font-size: 12px; font-weight: 800; color: #1B2B4B; }
+
+/* Team fit bar */
+.fit-bar-row { display: flex; flex-direction: column; gap: 8px; }
+.fit-bar-item { display: flex; align-items: center; gap: 10px; }
+.fit-team-logo { width: 28px; height: 28px; border-radius: 50%; background: #e5e7eb; overflow: hidden; flex-shrink: 0; }
+.fit-team-logo img { width: 100%; height: 100%; object-fit: contain; }
+.fit-bar-track { flex: 1; height: 6px; background: #e5e7eb; border-radius: 3px; overflow: hidden; }
+.fit-bar-fill { height: 100%; background: #5B0DCC; border-radius: 3px; }
+.fit-pct { font-size: 11px; font-weight: 700; color: #1B2B4B; flex-shrink: 0; width: 32px; text-align: right; }
+
+/* Expert reactions */
+.expert-row { display: flex; flex-direction: column; gap: 8px; }
+.expert-item { display: flex; gap: 10px; align-items: flex-start; padding: 10px; background: #f8f9fb; border: 1px solid #e5e7eb; border-radius: 8px; }
+.expert-avatar { width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: white; }
+.expert-content { flex: 1; min-width: 0; }
+.expert-name { font-size: 11px; font-weight: 700; color: #1B2B4B; }
+.expert-handle { font-size: 10px; color: #9ca3af; margin-bottom: 3px; }
+.expert-quote { font-size: 11px; color: #4b5563; line-height: 1.5; }
+.expert-reaction { font-size: 16px; flex-shrink: 0; }
+
+/* Grade row */
+.grade-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-top: 1px solid #f0f2f5;
+  flex-wrap: wrap;
+}
+.grade-circle { width: 70px; height: 70px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; flex-shrink: 0; color: white; }
+.grade-big { font-size: 26px; font-weight: 800; line-height: 1; }
+.grade-sm-lbl { font-size: 8px; font-weight: 700; opacity: 0.8; text-transform: uppercase; }
+.grade-boxes { display: flex; gap: 8px; flex: 1; min-width: 0; }
+.grade-box { flex: 1; background: #f8f9fb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 10px 8px; text-align: center; }
+.grade-box-val { font-size: 18px; font-weight: 800; color: #1B2B4B; }
+.grade-box-lbl { font-size: 8px; color: #9ca3af; font-weight: 600; text-transform: uppercase; }
+.grade-ctas { display: flex; gap: 8px; flex-shrink: 0; }
+.btn-outline { padding: 9px 14px; background: transparent; border: 1.5px solid #5B0DCC; color: #5B0DCC; font-family: inherit; font-size: 11px; font-weight: 700; border-radius: 7px; cursor: pointer; white-space: nowrap; }
+.btn-outline:hover { background: #f5f3ff; }
+.btn-solid { padding: 9px 14px; background: #5B0DCC; color: white; border: none; font-family: inherit; font-size: 11px; font-weight: 700; border-radius: 7px; cursor: pointer; white-space: nowrap; }
+.btn-solid:hover { background: #4a09a8; }
+
+.collapse-link { font-size: 11px; color: #9ca3af; font-weight: 600; cursor: pointer; padding: 8px 16px 14px; text-align: center; display: block; border-top: 1px solid #f0f2f5; }
+.collapse-link:hover { color: #5B0DCC; }
+
+/* ─── MOBILE STICKY FILTER BAR ─── */
+.mobile-filter-bar {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  border-top: 1px solid #e5e7eb;
+  padding: 10px 16px;
+  padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+  z-index: 100;
+  gap: 6px;
+  flex-wrap: wrap;
+  box-shadow: 0 -2px 12px rgba(0,0,0,0.08);
+}
+.mobile-filter-bar::-webkit-scrollbar { display: none; }
+.mobile-filter-bar .filter-pill { flex-shrink: 0; }
+.mobile-filter-bar .filter-select {
+  flex: 1;
+  min-width: 0;
+  font-size: 12px;
+  padding: 6px 22px 6px 10px;
+  background-position: right 8px center;
+}
+
+/* ─── RESPONSIVE ─── */
+
+/* Tablet: drop sidebars */
+@media (max-width: 1023px) {
+  .page-body {
+    grid-template-columns: 1fr;
+  }
+  .col-left,
+  .col-right {
+    display: none;
+  }
+  .desktop-filters {
+    display: flex;
+    position: sticky;
+    top: 44px;
+    z-index: 40;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    margin: 0 -16px 12px;
+    padding: 10px 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  }
+  .mobile-filter-bar {
+    display: none;
+  }
+  body {
+    padding-bottom: 0;
+  }
+}
+
+/* Mobile: stack card internally */
+@media (max-width: 639px) {
+  .card-top-row {
+    flex-direction: column;
+  }
+  .card-photo-col {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid #f0f2f5;
+  }
+  .player-photo {
+    height: 220px;
+    min-height: unset;
+  }
+  .phys-row {
+    border-top: 1px solid #f0f2f5;
+  }
+  .attrs-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .comp-card {
+    flex: 1;
+    max-width: none;
+  }
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .grade-row {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .grade-ctas {
+    width: 100%;
+  }
+  .grade-ctas .btn-outline,
+  .grade-ctas .btn-solid {
+    flex: 1;
+    text-align: center;
+  }
+  .reactions-row {
+    gap: 4px;
+  }
+  /* Swap to bottom sticky filter bar */
+  .desktop-filters {
+    display: none !important;
+  }
+  .mobile-filter-bar {
+    display: flex;
+  }
+  body {
+    padding-bottom: calc(110px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* Keep desktop filters hidden on desktop (using sidebar instead) */
+@media (min-width: 1024px) {
+  .desktop-filters { display: none; }
+  .mobile-filter-bar { display: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="site-header">
+  <div class="logo">Yahoo Sports</div>
+  <nav><a href="#">Fantasy</a><a href="#" class="active">Draft Hub</a><a href="#">NFL</a><a href="#">NBA</a></nav>
+</div>
+<div class="draft-banner">DRAFT BEGINS APRIL 24, 2PM ET &nbsp;·&nbsp; <span>Round 1 · 32 picks</span></div>
+
+<div class="page-body">
+
+  <!-- LEFT SIDEBAR -->
+  <div class="col-left">
+    <div class="side-module">
+      <div class="filter-module-title">Filters</div>
+      <div class="filter-row">
+        <span class="filter-row-label">Team</span>
+        <select class="filter-select" onchange="applyFilters()">
+          <option value="">All</option>
+          <option>Raiders</option><option>Jets</option><option>Cardinals</option><option>Titans</option>
+          <option>Giants</option><option>Browns</option><option>Commanders</option><option>Saints</option>
+          <option>Chiefs</option><option>Bengals</option><option>Dolphins</option><option>Cowboys</option>
+          <option>Rams</option><option>Ravens</option><option>Buccaneers</option><option>Lions</option>
+          <option>Vikings</option><option>Panthers</option><option>Steelers</option><option>Chargers</option>
+          <option>Eagles</option><option>Bears</option><option>Bills</option><option>49ers</option>
+          <option>Texans</option><option>Patriots</option><option>Seahawks</option>
+        </select>
+        <span class="filter-row-label" style="min-width:52px;">Position</span>
+        <select class="filter-select" onchange="applyFilters()">
+          <option value="">All</option>
+          <option value="qb">QB</option><option value="wr">WR</option><option value="rb">RB</option>
+          <option value="te">TE</option><option value="edge">Edge</option><option value="lb">LB</option>
+          <option value="cb">CB</option><option value="s">S</option><option value="ot">OT</option>
+          <option value="ol">OL</option><option value="g">G</option><option value="dl">DL</option><option value="dt">DT</option>
+        </select>
+      </div>
+      <div class="filter-row">
+        <span class="filter-row-label">School</span>
+        <select class="filter-select" onchange="applyFilters()">
+          <option value="">All</option>
+          <option>Alabama</option><option>Arizona St.</option><option>Auburn</option><option>Clemson</option>
+          <option>Florida</option><option>Georgia</option><option>Indiana</option><option>LSU</option>
+          <option>Miami (FL)</option><option>Notre Dame</option><option>Ohio St.</option><option>Oregon</option>
+          <option>Penn St.</option><option>Tennessee</option><option>Texas</option><option>Texas A&amp;M</option>
+          <option>Texas Tech</option><option>Toledo</option><option>Utah</option><option>Washington</option>
+        </select>
+      </div>
+      <div class="filter-row">
+        <span class="filter-row-label">Round</span>
+        <select class="filter-select" onchange="applyFilters()">
+          <option value="1">Round 1</option><option value="">All Rounds</option>
+        </select>
+      </div>
+      <div class="filter-row">
+        <span class="filter-row-label">Attributes</span>
+        <select class="filter-select" style="flex:1;" onchange="applyFilters()">
+          <option value="">All Attributes</option>
+          <option>Brick House</option><option>Dancing Bear</option><option>Chameleon</option>
+          <option>Rocket</option><option>Gumby</option><option>Glove</option><option>Clamps</option>
+          <option>Speed Demon</option><option>Professor X</option><option>Magnets</option>
+          <option>Dart Thrower</option><option>Howitzer</option><option>Phonebooth</option>
+          <option>Road-Grader</option>
+        </select>
+      </div>
+    </div>
+    <div class="side-module">
+      <div class="filter-module-title">Player Card View</div>
+      <div class="view-toggle">
+        <button class="view-btn active" onclick="setView('default',this)">Default</button>
+        <button class="view-btn" onclick="setView('condensed',this)">Condensed</button>
+      </div>
+    </div>
+    <div class="col-label" style="margin-top:4px;">Big Board</div>
+    <div class="side-module">
+      <div class="side-module-title">Top Ranked</div>
+      <div class="side-player-row"><div class="side-rank">1</div><div class="side-avatar"></div><div class="side-info"><div class="side-name">Fernando Mendoza</div><div class="side-meta">QB · Indiana</div></div><div class="side-val">1.0</div></div>
+      <div class="side-player-row"><div class="side-rank">2</div><div class="side-avatar"></div><div class="side-info"><div class="side-name">Arvell Reese</div><div class="side-meta">EDGE · Ohio St.</div></div><div class="side-val">2.1</div></div>
+      <div class="side-player-row"><div class="side-rank">3</div><div class="side-avatar"></div><div class="side-info"><div class="side-name">Caleb Downs</div><div class="side-meta">S · Ohio St.</div></div><div class="side-val">3.0</div></div>
+      <div class="side-player-row"><div class="side-rank">4</div><div class="side-avatar"></div><div class="side-info"><div class="side-name">Sonny Styles</div><div class="side-meta">LB · Ohio St.</div></div><div class="side-val">3.4</div></div>
+      <div class="side-player-row"><div class="side-rank">5</div><div class="side-avatar"></div><div class="side-info"><div class="side-name">Rueben Bain</div><div class="side-meta">EDGE · Miami (FL)</div></div><div class="side-val">4.2</div></div>
+    </div>
+  </div>
+
+  <!-- CENTER COLUMN -->
+  <div class="col-center">
+    <div class="center-col-header">
+      <div class="center-col-title">Draft Reports</div>
+      <div class="center-col-meta">32 prospects · Round 1</div>
+    </div>
+    <div class="desktop-filters" id="tabletFilters">
+      <select class="filter-select" id="tab-team" onchange="applyFilters()"><option value="">All Teams</option><option>Raiders</option><option>Jets</option><option>Cardinals</option><option>Titans</option><option>Giants</option><option>Browns</option><option>Commanders</option><option>Saints</option><option>Chiefs</option><option>Bengals</option><option>Dolphins</option><option>Cowboys</option><option>Rams</option><option>Ravens</option><option>Buccaneers</option><option>Lions</option><option>Vikings</option><option>Panthers</option><option>Steelers</option><option>Chargers</option><option>Eagles</option><option>Bears</option><option>Bills</option><option>49ers</option><option>Texans</option><option>Patriots</option><option>Seahawks</option></select>
+      <select class="filter-select" id="tab-pos" onchange="applyFilters()"><option value="">All Positions</option><option value="qb">QB</option><option value="wr">WR</option><option value="rb">RB</option><option value="te">TE</option><option value="edge">Edge</option><option value="lb">LB</option><option value="cb">CB</option><option value="s">S</option><option value="ot">OT</option><option value="ol">OL</option><option value="g">G</option><option value="dl">DL</option><option value="dt">DT</option></select>
+      <select class="filter-select" id="tab-school" onchange="applyFilters()"><option value="">All Schools</option><option>Alabama</option><option>Arizona St.</option><option>Auburn</option><option>Clemson</option><option>Florida</option><option>Georgia</option><option>Indiana</option><option>LSU</option><option>Miami (FL)</option><option>Notre Dame</option><option>Ohio St.</option><option>Oregon</option><option>Penn St.</option><option>Tennessee</option><option>Texas</option><option>Texas A&amp;M</option><option>Texas Tech</option><option>Toledo</option><option>Utah</option><option>Washington</option></select>
+      <select class="filter-select" id="tab-round" onchange="applyFilters()"><option value="1">Round 1</option><option value="">All Rounds</option></select>
+      <select class="filter-select" id="tab-attr" onchange="applyFilters()"><option value="">All Attributes</option><option>Brick House</option><option>Dancing Bear</option><option>Chameleon</option><option>Rocket</option><option>Gumby</option><option>Glove</option><option>Clamps</option><option>Speed Demon</option><option>Professor X</option><option>Magnets</option><option>Dart Thrower</option><option>Howitzer</option><option>Phonebooth</option><option>Road-Grader</option></select>
+    </div>
+    <div id="cards-container"></div>
+  </div>
+
+  <!-- RIGHT SIDEBAR -->
+  <div class="col-right">
+    <div class="col-label">Trending</div>
+    <div class="side-module">
+      <div class="side-module-title">Rising Stocks</div>
+      <div class="side-player-row"><div class="side-rank">↑</div><div class="side-avatar"></div><div class="side-info"><div class="side-name">Caleb Downs</div><div class="side-meta">S · Ohio St.</div></div><div class="side-val up">+2.1</div></div>
+      <div class="side-player-row"><div class="side-rank">↑</div><div class="side-avatar"></div><div class="side-info"><div class="side-name">Carnell Tate</div><div class="side-meta">WR · Ohio St.</div></div><div class="side-val up">+1.8</div></div>
+      <div class="side-player-row"><div class="side-rank">↓</div><div class="side-avatar"></div><div class="side-info"><div class="side-name">Kadyn Proctor</div><div class="side-meta">OT · Alabama</div></div><div class="side-val dn">−1.5</div></div>
+    </div>
+    <div class="side-module">
+      <div class="side-module-title">Deep Dives</div>
+      <div class="deep-dive-item">Why Rueben Bain is the most disruptive pass rusher in this class</div>
+      <div class="deep-dive-item">Caleb Downs: The case for best player in the 2026 draft</div>
+      <div class="deep-dive-item">Fernando Mendoza and the Raiders' bet on a new franchise QB</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- MOBILE FILTER BAR -->
+<div class="mobile-filter-bar" id="mobileFilters">
+  <select class="filter-select" id="mob-team" onchange="applyFilters()"><option value="">Team</option><option>Raiders</option><option>Jets</option><option>Cardinals</option><option>Titans</option><option>Giants</option><option>Browns</option><option>Commanders</option><option>Saints</option><option>Chiefs</option><option>Bengals</option><option>Dolphins</option><option>Cowboys</option><option>Rams</option><option>Ravens</option><option>Buccaneers</option><option>Lions</option><option>Vikings</option><option>Panthers</option><option>Steelers</option><option>Chargers</option><option>Eagles</option><option>Bears</option><option>Bills</option><option>49ers</option><option>Texans</option><option>Patriots</option><option>Seahawks</option></select>
+  <select class="filter-select" id="mob-pos" onchange="applyFilters()"><option value="">Position</option><option value="qb">QB</option><option value="wr">WR</option><option value="rb">RB</option><option value="te">TE</option><option value="edge">Edge</option><option value="lb">LB</option><option value="cb">CB</option><option value="s">S</option><option value="ot">OT</option><option value="ol">OL</option><option value="g">G</option><option value="dl">DL</option><option value="dt">DT</option></select>
+  <select class="filter-select" id="mob-school" onchange="applyFilters()"><option value="">School</option><option>Alabama</option><option>Arizona St.</option><option>Auburn</option><option>Clemson</option><option>Florida</option><option>Georgia</option><option>Indiana</option><option>LSU</option><option>Miami (FL)</option><option>Notre Dame</option><option>Ohio St.</option><option>Oregon</option><option>Penn St.</option><option>Tennessee</option><option>Texas</option><option>Texas A&amp;M</option><option>Texas Tech</option><option>Toledo</option><option>Utah</option><option>Washington</option></select>
+  <select class="filter-select" id="mob-round" onchange="applyFilters()"><option value="1">Round 1</option><option value="">All Rounds</option></select>
+  <select class="filter-select" id="mob-attr" onchange="applyFilters()"><option value="">Attributes</option><option>Brick House</option><option>Dancing Bear</option><option>Chameleon</option><option>Rocket</option><option>Gumby</option><option>Glove</option><option>Clamps</option><option>Speed Demon</option><option>Professor X</option><option>Magnets</option><option>Dart Thrower</option><option>Howitzer</option><option>Phonebooth</option><option>Road-Grader</option></select>
+</div>
+
+<script>
+const posColors = {qb:'#dc2626',wr:'#d97706',rb:'#059669',te:'#b45309',edge:'#5B0DCC',lb:'#1B2B4B',cb:'#0284c7',s:'#0284c7',ot:'#374151',ol:'#374151',g:'#374151',dl:'#7c3aed',dt:'#7c3aed'};
+
+const picks = [
+  {pick:1,round:1,via:'',name:"Fernando Mendoza",pos:"QB",pc:"qb",school:"Indiana",ht:"6'5\"",wt:"225",team:"Raiders",abbr:"lv",fit:"The Raiders recently traded Geno Smith to the Jets, which means there's really nothing more to say. This is done, and let's hope for Klint Kubiak's sake it works as he enters his first season as an NFL head coach.",attrs:[["🎯","Dart Thrower"],["💪","Howitzer"]]},
+  {pick:2,round:1,via:'',name:"Arvell Reese",pos:"EDGE",pc:"edge",school:"Ohio St.",ht:"6'4\"",wt:"243",team:"Jets",abbr:"nyj",fit:"Reese's best spot will likely be on the line of scrimmage, where he flashes as a high-end pass rusher and already shows the ability to hold the edge in the run game. His versatility to play off-ball is a bonus if the Jets want to get creative in getting all their pass rushers on the field.",attrs:[["🧱","Brick House"],["🤸","Gumby"],["🚀","Rocket"]]},
+  {pick:3,round:1,via:'',name:"Sonny Styles",pos:"LB",pc:"lb",school:"Ohio St.",ht:"6'5\"",wt:"243",team:"Cardinals",abbr:"ari",fit:"A top-three pick feels high for an off-ball linebacker, but Styles has the chance to be a transformative talent at a position that has almost no elite players in the league. He has the size and speed to attack all areas of the field, played well in coverage, and has use as a blitzer.",attrs:[["🔮","Professor X"],["🚀","Rocket"]]},
+  {pick:4,round:1,via:'',name:"David Bailey",pos:"EDGE",pc:"edge",school:"Texas Tech",ht:"6'3\"",wt:"250",team:"Titans",abbr:"ten",fit:"The rebuilding Titans should continue to add to their trenches. Robert Saleh loves investing heavily into his defensive lines, and Bailey would give him a flamethrower to rush the passer. Jeffery Simmons, John Franklin-Myers, and Bailey is a lot of heat to throw at offenses.",attrs:[["🚀","Rocket"],["🤸","Gumby"]]},
+  {pick:5,round:1,via:'',name:"Jeremiyah Love",pos:"RB",pc:"rb",school:"Notre Dame",ht:"6'0\"",wt:"214",team:"Giants",abbr:"nyg",fit:"John Harbaugh and Greg Roman are getting back together in New York. Harbaugh has thoroughly demonstrated a desire to be a good running team through almost his entire Baltimore tenure. The Giants may view a game-breaking running back as the last piece.",attrs:[["☎️","Phonebooth"],["🚀","Rocket"]]},
+  {pick:6,round:1,via:'',name:"Monroe Freeling",pos:"OT",pc:"ot",school:"Georgia",ht:"6'7\"",wt:"315",team:"Browns",abbr:"cle",fit:"The Browns needed to completely rebuild their offensive line this offseason. Freeling, a riser throughout the 2025 season, has upside as a true blindside protector for whoever is throwing passes in Cleveland in the future.",attrs:[["🚧","Road-Grader"],["🔒","Clamps"],["🐻","Dancing Bear"]]},
+  {pick:7,round:1,via:'',name:"Caleb Downs",pos:"S",pc:"s",school:"Ohio St.",ht:"6'0\"",wt:"205",team:"Commanders",abbr:"wsh",fit:"He's arguably the best player in the draft and has been an elite defensive back prospect since his first season at Alabama. He's the 'can't-miss' caliber player the Commanders could use in their secondary.",attrs:[["🔮","Professor X"],["🚀","Rocket"],["🦎","Chameleon"]]},
+  {pick:8,round:1,via:'',name:"Mansoor Delane",pos:"CB",pc:"cb",school:"LSU",ht:"6'0\"",wt:"190",team:"Saints",abbr:"no",fit:"Delane is a smart player who fits into Brandon Staley's zone-heavy scheme and creative passing down looks. He would be an upgrade for the cornerback room and give the Saints a defender who would be comfortable right away in the scheme.",attrs:[["🧤","Glove"]]},
+  {pick:9,round:1,via:'',name:"Rueben Bain",pos:"EDGE",pc:"edge",school:"Miami (FL)",ht:"6'3\"",wt:"270",team:"Chiefs",abbr:"kc",fit:"By the luck of the draw, one of the most disruptive defensive ends in college football falls into the Chiefs' lap. Bain would be a perfect fit in Steve Spagnuolo's defense and form a productive trio alongside Chris Jones and George Karlaftis.",attrs:[["🧱","Brick House"],["🤸","Gumby"]]},
+  {pick:10,round:1,via:'',name:"Jermod McCoy",pos:"CB",pc:"cb",school:"Tennessee",ht:"6'0\"",wt:"193",team:"Bengals",abbr:"cin",fit:"McCoy didn't play last season, but he's still looked at as a high-end cornerback prospect because of what he put on film before his injury in January 2025. The ceiling is sky-high.",attrs:[["🧤","Glove"]]},
+  {pick:11,round:1,via:'',name:"Francis Mauigoa",pos:"OL",pc:"ol",school:"Miami (FL)",ht:"6'6\"",wt:"315",team:"Dolphins",abbr:"mia",fit:"The Dolphins stay local and grab Mauigoa, who has the skills to slide in as a long-term starter at right tackle or guard. If Patrick Paul and Jonah Savaiinaea develop, that's a nice core up front to build around.",attrs:[["🧱","Brick House"]]},
+  {pick:12,round:1,via:'',name:"Keldric Faulk",pos:"DL",pc:"dl",school:"Auburn",ht:"6'6\"",wt:"285",team:"Cowboys",abbr:"dal",fit:"Faulk is still a work in progress rushing the passer, but he's young, has high-end traits, plays hard, and will enter the league already as a plus run defender. His pocket-pushing rush style fits perfectly with Quinnen Williams on the inside.",attrs:[["🧱","Brick House"],["🐻","Dancing Bear"]]},
+  {pick:13,round:1,via:'via Falcons',name:"Caleb Lomu",pos:"OT",pc:"ot",school:"Utah",ht:"6'6\"",wt:"308",team:"Rams",abbr:"lar",fit:"With Rob Havenstein retiring, the Rams have a big hole on the right side. Lomu might be a cleaner fit here considering he was already playing right tackle at Utah. His nasty streak, explosiveness, and athleticism give him the chance to develop into a lockdown right tackle.",attrs:[["🧱","Brick House"],["🐻","Dancing Bear"],["🔒","Clamps"]]},
+  {pick:14,round:1,via:'',name:"Carnell Tate",pos:"WR",pc:"wr",school:"Ohio St.",ht:"6'3\"",wt:"195",team:"Ravens",abbr:"bal",fit:"Tate is a steady player who plays bigger than his size because of his catching range and ball skills. His feel against zone would be highlighted during Lamar Jackson's scramble drills. Dipping into the first-round WR well with Tate would give the Ravens a different flavor of pass catcher.",attrs:[["🦎","Chameleon"]]},
+  {pick:15,round:1,via:'',name:"Avieon Terrell",pos:"CB",pc:"cb",school:"Clemson",ht:"5'11\"",wt:"180",team:"Buccaneers",abbr:"tb",fit:"Terrell isn't the most explosive cornerback, but he's fluid and plays the ball well — just like his older brother A.J. on the Atlanta Falcons. Tampa Bay goes elsewhere with the pick after Faulk went a few picks earlier.",attrs:[["🧤","Glove"],["🔮","Professor X"]]},
+  {pick:16,round:1,via:'via Colts',name:"Olaivavega Ioane",pos:"G",pc:"g",school:"Penn St.",ht:"6'4\"",wt:"328",team:"Jets",abbr:"nyj",fit:"After losing John Simpson and Alijah Vera-Tucker in free agency, the Jets reinforce their offensive line with another first-round selection. Ioane has good size and showed good awareness as a player this past season.",attrs:[["🧱","Brick House"]]},
+  {pick:17,round:1,via:'',name:"Akheem Mesidor",pos:"EDGE",pc:"edge",school:"Miami (FL)",ht:"6'3\"",wt:"280",team:"Lions",abbr:"det",fit:"The Lions are razor thin at defensive end outside of Aidan Hutchinson. Mesidor is a bit hit-or-miss but has a chance to be a legitimate, consistent threat off the edge if he hits the ground running.",attrs:[["🤸","Gumby"]]},
+  {pick:18,round:1,via:'',name:"Kayden McDonald",pos:"DT",pc:"dt",school:"Ohio St.",ht:"6'3\"",wt:"326",team:"Vikings",abbr:"min",fit:"McDonald's ability to hold up against the run is his calling card, while also having light enough feet to be used on the twists and stunts that Flores loves so much. A tangible trench talent who lets the creative coaches be creative.",attrs:[["🧱","Brick House"]]},
+  {pick:19,round:1,via:'',name:"Caleb Banks",pos:"DT",pc:"dt",school:"Florida",ht:"6'6\"",wt:"330",team:"Panthers",abbr:"car",fit:"Carolina adds some serious size to its defensive line. Banks is a behemoth tackle with elite athleticism and sound technique — he just can't tackle. But his other traits are so dynamic that even marginal improvement there would make him a plus starter.",attrs:[["🧱","Brick House"],["🐻","Dancing Bear"]]},
+  {pick:20,round:1,via:'via Packers',name:"Anthony Hill",pos:"LB",pc:"lb",school:"Texas",ht:"6'3\"",wt:"238",team:"Cowboys",abbr:"dal",fit:"Hill is a good athlete with sideline-to-sideline range. He shows good awareness and play recognition, and would fit the Cowboys' new defensive scheme well because of his dynamic blitzing ability.",attrs:[["💨","Speed Demon"],["🧱","Brick House"]]},
+  {pick:21,round:1,via:'',name:"Jordyn Tyson",pos:"WR",pc:"wr",school:"Arizona St.",ht:"6'2\"",wt:"200",team:"Steelers",abbr:"pit",fit:"The Steelers have one wide receiver spot set with DK Metcalf, but they're still severely lacking options beyond him. At his best and healthiest, Tyson is a bully when the ball is in the air and shows real upside to grow into an NFL WR1.",attrs:[["🧲","Magnets"]]},
+  {pick:22,round:1,via:'',name:"Spencer Fano",pos:"OT",pc:"ot",school:"Utah",ht:"6'6\"",wt:"308",team:"Chargers",abbr:"lac",fit:"Fano is a great athlete who is explosive as a run blocker and an easy mover in space. This would be a boon for the Chargers, as Fano would fit right in with Mike McDaniel's scheme.",attrs:[["🦎","Chameleon"],["🐻","Dancing Bear"]]},
+  {pick:23,round:1,via:'',name:"Kenyon Sadiq",pos:"TE",pc:"te",school:"Oregon",ht:"6'3\"",wt:"245",team:"Eagles",abbr:"phi",fit:"The Eagles could land an incredible long-term replacement for Dallas Goedert here with the über-athletic Sadiq. He is a freak athlete who should immediately find a role as a pass-catching option early in his career.",attrs:[["💨","Speed Demon"],["🦎","Chameleon"]]},
+  {pick:24,round:1,via:'via Jaguars',name:"Denzel Boston",pos:"WR",pc:"wr",school:"Washington",ht:"6'4\"",wt:"209",team:"Browns",abbr:"cle",fit:"Boston would complement Jerry Jeudy and Harold Fannin Jr. as an outside ball winner who can win with his catching skills and size. He's a steady player who can win in the red zone and give the Browns QB a reliable big target.",attrs:[["🧲","Magnets"]]},
+  {pick:25,round:1,via:'',name:"Peter Woods",pos:"DL",pc:"dl",school:"Clemson",ht:"6'3\"",wt:"310",team:"Bears",abbr:"chi",fit:"Woods' draft day slide stops here with the Bears adding a home run swing at a position of desperate need. At his best, Woods can be an impact defender at multiple alignments along the interior.",attrs:[["🧱","Brick House"]]},
+  {pick:26,round:1,via:'',name:"Emmanuel McNeil-Warren",pos:"S",pc:"s",school:"Toledo",ht:"6'2\"",wt:"202",team:"Bills",abbr:"buf",fit:"McNeil-Warren is a quick diagnoser who loves to fit the run. He would be a great fit for Jim Leonhard's defense that asks a lot out of its safeties.",attrs:[["🦎","Chameleon"]]},
+  {pick:27,round:1,via:'',name:"Max Iheanachor",pos:"OT",pc:"ot",school:"Arizona St.",ht:"6'6\"",wt:"330",team:"49ers",abbr:"sf",fit:"The 49ers need a big infusion of young talent along the offensive line. Iheanachor is a redshirt senior who started playing football only a few years ago in JUCO. Never bet against someone who started playing football in JUCO and didn't quit.",attrs:[["🐻","Dancing Bear"]]},
+  {pick:28,round:1,via:'',name:"Kadyn Proctor",pos:"OT",pc:"ot",school:"Alabama",ht:"6'7\"",wt:"366",team:"Texans",abbr:"hou",fit:"Nick Caserio loves his big school players. Proctor could start his career at guard and provide depth at tackle before kicking out down the road. The Texans should keep addressing their offensive line.",attrs:[]},
+  {pick:29,round:1,via:'via Rams',name:"Colton Hood",pos:"CB",pc:"cb",school:"Tennessee",ht:"6'0\"",wt:"195",team:"Chiefs",abbr:"kc",fit:"With Jaylen Watson and Trent McDuffie off to the Rams, cornerback has become a severe need for the Chiefs. Hood would have plenty of chances to make plays on the ball with Chris Jones and Rueben Bain getting after the quarterback.",attrs:[["🧤","Glove"]]},
+  {pick:30,round:1,via:'via Broncos',name:"KC Concepcion",pos:"WR",pc:"wr",school:"Texas A&M",ht:"5'11\"",wt:"190",team:"Dolphins",abbr:"mia",fit:"Concepcion can bring the same type of explosive plays that Waddle did catching balls from Tua. His coaches were constantly figuring out ways to get him the ball. He still needs to show improvement in route running and consistency.",attrs:[["🦎","Chameleon"],["🧲","Magnets"]]},
+  {pick:31,round:1,via:'',name:"Blake Miller",pos:"OT",pc:"ot",school:"Clemson",ht:"6'6\"",wt:"315",team:"Patriots",abbr:"ne",fit:"The Patriots' offense still has a ways to go in talent acquisition. They had a top-five draft pick in the same season they made the Super Bowl, highlighting the overall lack of high-end talent on the offensive line. Miller starts to fix that.",attrs:[["🔒","Clamps"],["🐻","Dancing Bear"]]},
+  {pick:32,round:1,via:'',name:"Dillon Thieneman",pos:"S",pc:"s",school:"Oregon",ht:"6'0\"",wt:"205",team:"Seahawks",abbr:"sea",fit:"Thieneman would be an excellent fit in Mike Macdonald's two-high scheme, unlocking his two-way ability as a run defender and in coverage. He would allow the Seahawks to live in their five and six defensive back looks.",attrs:[["🦎","Chameleon"]]},
+];
+
+function buildCard(p) {
+  const color = posColors[p.pc] || '#5B0DCC';
+  const via = p.via ? ` <span style="font-size:9px;opacity:0.55;">(${p.via})</span>` : '';
+  const attrsHtml = p.attrs.length ? `
+    <div>
+      <div class="section-heading">Attributes</div>
+      <div class="attrs-grid">
+        ${p.attrs.map(a=>`<div class="attr-pill"><span class="attr-emoji">${a[0]}</span><div class="attr-text">${a[1]}</div></div>`).join('')}
+      </div>
+    </div>` : '';
+  const attrNames = p.attrs.map(a=>a[1]).join(' ');
+  return `<div class="player-card" id="card-${p.pick}" data-pos="${p.pc}" data-school="${p.school}" data-round="${p.round}" data-team="${p.team}" data-attrs="${attrNames}">
+  <div class="card-header">
+    <span class="pick-badge">RD${p.round}, PK${p.pick}${via}</span>
+    <div class="header-team-logo"><img src="https://a.espncdn.com/i/teamlogos/nfl/500/${p.abbr}.png" onerror="this.style.display='none'"></div>
+    <div class="header-name"><div class="card-name">${p.name}</div><div class="card-pos-school">${p.pos} · ${p.school}</div></div>
+    <div class="header-right"><span class="pos-badge" style="background:${color};color:white;">${p.pos}</span><a class="card-header-link" href="#">View ↗</a></div>
+  </div>
+  <div class="card-body">
+    <div class="card-top-row">
+      <div class="card-photo-col">
+        <div class="player-photo" style="background:linear-gradient(160deg,#1B2B4B 0%,#2d3f63 100%);min-height:120px;"></div>
+        <div class="phys-row">
+          <div class="phys-item"><div class="phys-val">${p.ht}</div><div class="phys-lbl">Height</div></div>
+          <div class="phys-item"><div class="phys-val">${p.wt}</div><div class="phys-lbl">Weight</div></div>
+        </div>
+      </div>
+      <div class="card-content-col">
+        <div><div class="section-heading">Team Fit</div><div class="team-fit-text">${p.fit}</div></div>
+        ${attrsHtml}
+      </div>
+    </div>
+    <div class="card-cta"><button class="report-btn" onclick="toggleCard('card-${p.pick}')">See Full Player Report <span class="chev">▾</span></button></div>
+  </div>
+  <div class="expanded-sections">
+    <div class="exp-section"><div class="exp-sec-heading">Scouting Report</div><div class="scouting-text">Full scouting report coming soon.</div></div>
+    <div class="grade-row">
+      <div class="grade-circle" style="background:${color};"><div class="grade-big">${p.pick}</div><div class="grade-sm-lbl">Pick</div></div>
+      <div class="grade-ctas"><button class="btn-outline">Full Report</button><button class="btn-solid">+ Draft Board</button></div>
+    </div>
+    <span class="collapse-link" onclick="toggleCard('card-${p.pick}')">▲ Collapse</span>
+  </div>
+</div>`;
+}
+
+document.getElementById('cards-container').innerHTML = picks.map(buildCard).join('');
+
+function toggleCard(id) {
+  const card = document.getElementById(id);
+  card.classList.toggle('expanded');
+  if (card.classList.contains('expanded')) setTimeout(()=>card.scrollIntoView({behavior:'smooth',block:'nearest'}),50);
+}
+function react(el) {
+  el.closest('.reactions-row').querySelectorAll('.reaction-item').forEach(r=>r.classList.remove('active'));
+  el.classList.add('active');
+}
+function applyFilters() {
+  const pos = document.querySelector('[id$="-pos"]')?.value || '';
+  const team = document.querySelector('[id$="-team"]')?.value || '';
+  const school = document.querySelector('[id$="-school"]')?.value || '';
+  const round = document.querySelector('[id$="-round"]')?.value || '';
+  const attr = document.querySelector('[id$="-attr"]')?.value || '';
+  ['team','pos','school','round','attr'].forEach(key => {
+    const val = {team,pos,school,round,attr}[key];
+    document.querySelectorAll('[id$="-'+key+'"]').forEach(el=>{el.value=val;});
+  });
+  document.querySelectorAll('.player-card').forEach(card => {
+    let show = true;
+    if (pos && card.dataset.pos !== pos) show = false;
+    if (team && card.dataset.team !== team) show = false;
+    if (school && card.dataset.school !== school) show = false;
+    if (round && card.dataset.round !== round) show = false;
+    if (attr && !card.dataset.attrs?.includes(attr)) show = false;
+    card.style.display = show ? '' : 'none';
+  });
+}
+function setView(mode, btn) {
+  document.querySelectorAll('.view-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.player-card').forEach(card=>card.classList.toggle('condensed',mode==='condensed'));
+}
+</script>
+</body>
+</html>
