@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Draft Hub — Player Card v4</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f0f2f5; color: #1a1a2e; min-height: 100vh; }
+
+/* ─── SITE CHROME ─── */
+.site-header { background: #3a0099; height: 44px; display: flex; align-items: center; padding: 0 24px; gap: 20px; }
+.site-header .logo { color: white; font-weight: 800; font-size: 18px; letter-spacing: -0.5px; }
+.site-header nav { display: flex; gap: 16px; }
+.site-header nav a { color: rgba(255,255,255,0.7); font-size: 12px; font-weight: 600; text-decoration: none; }
+.site-header nav a.active { color: white; }
+.draft-banner { background: #1B2B4B; text-align: center; padding: 8px; font-size: 12px; font-weight: 700; color: white; }
+.draft-banner span { color: #7cb3ff; }
+
+/* ─── 3-COLUMN LAYOUT ─── */
+.page-body { max-width: 1280px; margin: 0 auto; padding: 20px 16px; display: grid; grid-template-columns: 26fr 53fr 26fr; gap: 20px; align-items: start; }
+
+/* ─── SIDE COLUMNS ─── */
+.col-label { font-size: 10px; font-weight: 700; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+.side-module { background: white; border-radius: 8px; border: 1px solid #e5e7eb; padding: 12px; margin-bottom: 12px; }
+.side-module-title { font-size: 10px; font-weight: 700; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+.side-player-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid #f3f4f6; }
+.side-player-row:last-child { border-bottom: none; }
+.side-rank { font-size: 11px; font-weight: 700; color: #9ca3af; width: 16px; flex-shrink: 0; }
+.side-avatar { width: 30px; height: 30px; border-radius: 50%; background: #e5e7eb; overflow: hidden; flex-shrink: 0; }
+.side-avatar img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+.side-info { flex: 1; min-width: 0; }
+.side-name { font-size: 11px; font-weight: 600; color: #374151; }
+.side-meta { font-size: 10px; color: #9ca3af; }
+.side-adp { font-size: 11px; font-weight: 700; color: #5B0DCC; margin-left: auto; flex-shrink: 0; }
+.side-adp.up { color: #059669; }
+.side-adp.dn { color: #dc2626; }
+
+/* ─── PLAYER CARD ─── */
+.player-card { background: white; border-radius: 10px; border: 1px solid #e5e7eb; overflow: hidden; margin-bottom: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+
+/* Header */
+.card-header { background: #0f1e35; color: white; padding: 10px 14px; display: flex; align-items: center; gap: 10px; }
+.pick-badge { font-size: 9px; font-weight: 700; color: rgba(255,255,255,0.5); letter-spacing: 0.3px; white-space: nowrap; flex-shrink: 0; }
+.header-team-logo { width: 26px; height: 26px; border-radius: 50%; overflow: hidden; background: rgba(255,255,255,0.1); flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+.header-team-logo img { width: 22px; height: 22px; object-fit: contain; }
+.card-name { font-size: 16px; font-weight: 800; }
+.card-pos-school { font-size: 11px; color: rgba(255,255,255,0.55); }
+.header-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; margin-left: auto; }
+.pos-badge { font-size: 9px; font-weight: 800; padding: 2px 7px; border-radius: 3px; letter-spacing: 0.5px; }
+.pos-edge { background: #5B0DCC; color: white; }
+.pos-wr   { background: #d97706; color: white; }
+.pos-qb   { background: #dc2626; color: white; }
+.card-link { font-size: 10px; color: rgba(255,255,255,0.45); text-decoration: none; }
+.card-link:hover { color: #7cb3ff; }
+
+/* ─── SECTION HEADING ─── */
+.section-heading { font-size: 11px; font-weight: 800; color: #111827; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 7px; }
+
+/* ══════════════════════════════════════
+   COLLAPSED: Team Fit full-width top
+   then photo | attrs two-col below
+   ══════════════════════════════════════ */
+
+/* Team Fit — full width */
+.card-teamfit {
+  padding: 14px 16px 12px;
+  border-bottom: 1px solid #f0f2f5;
+}
+.team-fit-text {
+  font-size: 12px;
+  line-height: 1.65;
+  color: #4b5563;
+}
+
+/* Mid row: photo col + attrs col, stretch to equal height */
+.card-mid-row {
+  display: flex;
+  align-items: stretch;
+  border-bottom: 1px solid #f0f2f5;
+}
+
+/* Photo column */
+.card-photo-col {
+  width: 180px;
+  flex-shrink: 0;
+  border-right: 1px solid #f0f2f5;
+  display: flex;
+  flex-direction: column;
+}
+.player-photo {
+  flex: 1;
+  min-height: 120px;
+  overflow: hidden;
+  background: linear-gradient(160deg, #1B2B4B 0%, #2d3f63 100%);
+}
+.player-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  display: block;
+}
+/* Phys stats — single inline row */
+.phys-row {
+  display: flex;
+  background: #f8f9fb;
+  border-top: 1px solid #f0f2f5;
+  flex-shrink: 0;
+}
+.phys-item { flex: 1; text-align: center; padding: 7px 4px; border-right: 1px solid #ebebeb; }
+.phys-item:last-child { border-right: none; }
+.phys-val { font-size: 12px; font-weight: 800; color: #1B2B4B; line-height: 1.2; }
+.phys-lbl { font-size: 7px; color: #9ca3af; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; }
+
+/* Attrs column — vertically centered */
+.card-attrs-col {
+  flex: 1;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+}
+
+/* Attribute pills — white bg, border */
+.attrs-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7px;
+}
+.attr-pill {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  background: white;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+.attr-icon {
+  width: 36px; height: 36px;
+  border-radius: 8px;
+  background: #f5f3ff;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.attr-icon svg { width: 20px; height: 20px; }
+.attr-text { font-size: 11px; font-weight: 700; color: #1B2B4B; line-height: 1.35; }
+
+/* Player comparisons */
+.card-comparisons { padding: 12px 16px; border-bottom: 1px solid #f0f2f5; }
+.comps-row { display: flex; gap: 8px; }
+.comp-card {
+  flex: 1; display: flex; align-items: center; gap: 8px;
+  background: #f8f9fb; border: 1px solid #e5e7eb;
+  border-radius: 8px; padding: 8px 10px;
+}
+.comp-silhouette {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: #d1d5db; flex-shrink: 0;
+  overflow: hidden; display: flex; align-items: center; justify-content: center;
+}
+.comp-silhouette img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+.comp-name { font-size: 11px; font-weight: 700; color: #1B2B4B; }
+.comp-pct { font-size: 10px; color: #5B0DCC; font-weight: 700; }
+
+/* CTA */
+.card-cta { padding: 12px 16px 14px; display: flex; justify-content: center; }
+.report-btn {
+  padding: 9px 28px; background: transparent;
+  border: 1.5px solid #5B0DCC; color: #5B0DCC;
+  font-family: inherit; font-size: 12px; font-weight: 700;
+  border-radius: 20px; cursor: pointer; transition: background 0.12s;
+  display: flex; align-items: center; gap: 5px;
+}
+.report-btn:hover { background: #f5f3ff; }
+.report-btn .chev { transition: transform 0.2s; display: inline-block; }
+.player-card.expanded .report-btn .chev { transform: rotate(180deg); }
+
+/* ══════════════════════════════════════
+   EXPANDED SECTIONS
+   ══════════════════════════════════════ */
+.expanded-sections { display: none; }
+.player-card.expanded .expanded-sections { display: block; }
+
+.exp-section { padding: 14px 16px; border-top: 1px solid #f0f2f5; }
+.exp-sec-heading { font-size: 11px; font-weight: 800; color: #111827; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 10px; }
+.scouting-text { font-size: 12px; line-height: 1.7; color: #4b5563; }
+
+/* Key stats grid */
+.stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.sg-item { background: #f8f9fb; border: 1px solid #e5e7eb; border-radius: 7px; padding: 9px 8px; text-align: center; }
+.sg-val { font-size: 15px; font-weight: 800; color: #1B2B4B; }
+.sg-lbl { font-size: 8px; color: #9ca3af; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; }
+
+/* Draft reactions */
+.reactions-row { display: flex; gap: 6px; }
+.reaction-item {
+  flex: 1; background: #f8f9fb; border: 1.5px solid #e5e7eb;
+  border-radius: 10px; padding: 8px 6px; text-align: center;
+  cursor: pointer; transition: border-color 0.12s, background 0.12s;
+}
+.reaction-item:hover { background: #f0eeff; border-color: #c4b0ff; }
+.reaction-item.active { background: #f0eeff; border-color: #5B0DCC; }
+.reaction-emoji { font-size: 20px; line-height: 1; margin-bottom: 3px; }
+.reaction-label { font-size: 9px; font-weight: 700; color: #6b7280; margin-bottom: 2px; }
+.reaction-pct { font-size: 12px; font-weight: 800; color: #1B2B4B; }
+
+/* Expert reactions */
+.expert-row { display: flex; flex-direction: column; gap: 8px; }
+.expert-item { display: flex; gap: 10px; align-items: flex-start; padding: 10px; background: #f8f9fb; border: 1px solid #e5e7eb; border-radius: 8px; }
+.expert-avatar { width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; color: white; }
+.expert-content { flex: 1; min-width: 0; }
+.expert-name { font-size: 11px; font-weight: 700; color: #1B2B4B; }
+.expert-handle { font-size: 10px; color: #9ca3af; margin-bottom: 3px; }
+.expert-quote { font-size: 11px; color: #4b5563; line-height: 1.5; }
+.expert-reaction { font-size: 16px; flex-shrink: 0; }
+
+/* Grade row */
+.grade-row { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-top: 1px solid #f0f2f5; }
+.grade-circle { width: 72px; height: 72px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; flex-shrink: 0; color: white; }
+.grade-big { font-size: 28px; font-weight: 800; line-height: 1; }
+.grade-sm-lbl { font-size: 8px; font-weight: 700; opacity: 0.8; text-transform: uppercase; letter-spacing: 0.3px; }
+.grade-boxes { display: flex; gap: 8px; flex: 1; }
+.grade-box { flex: 1; background: #f8f9fb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 10px; text-align: center; }
+.grade-box-val { font-size: 20px; font-weight: 800; color: #1B2B4B; }
+.grade-box-lbl { font-size: 9px; color: #9ca3af; font-weight: 600; text-transform: uppercase; }
+.grade-ctas { display: flex; gap: 8px; }
+.btn-full-report { padding: 9px 14px; background: transparent; border: 1.5px solid #5B0DCC; color: #5B0DCC; font-family: inherit; font-size: 11px; font-weight: 700; border-radius: 7px; cursor: pointer; white-space: nowrap; }
+.btn-full-report:hover { background: #f5f3ff; }
+.btn-add-board { padding: 9px 14px; background: #5B0DCC; color: white; border: none; font-family: inherit; font-size: 11px; font-weight: 700; border-radius: 7px; cursor: pointer; white-space: nowrap; }
+.btn-add-board:hover { background: #4a09a8; }
+.collapse-link { font-size: 11px; color: #9ca3af; font-weight: 600; cursor: pointer; padding: 8px 16px 14px; text-align: center; display: block; border-top: 1px solid #f0f2f5; }
+.collapse-link:hover { color: #5B0DCC; }
+
+/* Center col header */
+.center-col-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.center-col-title { font-size: 14px; font-weight: 800; color: #1B2B4B; }
+.center-col-meta { font-size: 11px; color: #9ca3af; }
+</style>
+</head>
+<body>
+
+<div class="site-header">
+  <div class="logo">Yahoo Sports</div>
+  <nav>
+    <a href="#">Fantasy</a>
+    <a href="#" class="active">Draft Hub</a>
+    <a href="#">NFL</a>
+    <a href="#">NBA</a>
+  </nav>
+</div>
+<div class="draft-banner">
+  DRAFT BOARD: APRIL 24, 2PM ET &nbsp;·&nbsp; <span>Round 1 · Pick 12 on the clock</span>
+</div>
+
+<div class="page-body">
+
+  <!-- LEFT COLUMN -->
+  <div class="col-left">
+    <div class="col-label">Big Board</div>
+    <div class="side-module">
+      <div class="side-module-title">Top Ranked</div>
+      <div class="side-player-row">
+        <div class="side-rank">1</div>
+        <div class="side-avatar"></div>
+        <div class="side-info"><div class="side-name">Abdul Carter</div><div class="side-meta">Edge · Penn State</div></div>
+        <div class="side-adp">2.1</div>
+      </div>
+      <div class="side-player-row">
+        <div class="side-rank">2</div>
+        <div class="side-avatar"></div>
+        <div class="side-info"><div class="side-name">Travis Hunter</div><div class="side-meta">WR/CB · Colorado</div></div>
+        <div class="side-adp">3.4</div>
+      </div>
+      <div class="side-player-row">
+        <div class="side-rank">3</div>
+        <div class="side-avatar"></div>
+        <div class="side-info"><div class="side-name">Cam Ward</div><div class="side-meta">QB · Miami</div></div>
+        <div class="side-adp">4.8</div>
+      </div>
+      <div class="side-player-row">
+        <div class="side-rank">4</div>
+        <div class="side-avatar"></div>
+        <div class="side-info"><div class="side-name">Will Johnson</div><div class="side-meta">CB · Michigan</div></div>
+        <div class="side-adp">6.2</div>
+      </div>
+      <div class="side-player-row">
+        <div class="side-rank">5</div>
+        <div class="side-avatar"></div>
+        <div class="side-info"><div class="side-name">Mason Graham</div><div class="side-meta">DT · Michigan</div></div>
+        <div class="side-adp">7.0</div>
+      </div>
+    </div>
+    <div class="side-module">
+      <div class="side-module-title">Your Draft Board</div>
+      <div class="side-player-row">
+        <div class="side-rank">★</div>
+        <div class="side-avatar"></div>
+        <div class="side-info"><div class="side-name">Tetairoa McMillan</div><div class="side-meta">WR · Arizona</div></div>
+        <div class="side-adp">9.1</div>
+      </div>
+      <div class="side-player-row">
+        <div class="side-rank">★</div>
+        <div class="side-avatar"></div>
+        <div class="side-info"><div class="side-name">Kelvin Banks Jr.</div><div class="side-meta">OT · Texas</div></div>
+        <div class="side-adp">5.5</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CENTER COLUMN -->
+  <div class="col-center">
+    <div class="center-col-header">
+      <div class="center-col-title">Draft Reports</div>
+      <div class="center-col-meta">3 prospects · Round 1</div>
+    </div>
+
+    <!-- ══════════════════════
+         CARD 1 — Abdul Carter
+    ══════════════════════ -->
+    <div class="player-card" id="card-carter">
+      <div class="card-header">
+        <span class="pick-badge">RD1, PK1</span>
+        <div class="header-team-logo"><img src="https://a.espncdn.com/i/teamlogos/nfl/500/ten.png" onerror="this.style.display='none'"></div>
+        <div><div class="card-name">Abdul Carter</div><div class="card-pos-school">Edge · Penn State</div></div>
+        <div class="header-right">
+          <span class="pos-badge pos-edge">EDGE</span>
+          <a class="card-link" href="#">View ↗</a>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <!-- Team Fit — full width -->
+        <div class="card-teamfit">
+          <div class="section-heading">Team Fit</div>
+          <div class="team-fit-text">Abdul Carter is an explosive and versatile linebacker with a strong blend of speed, power, and instincts, making him a disruptive force in both run defense and pass rushing. His athleticism and physicality allow him to excel in multiple roles, projecting as a high-impact playmaker at the next level.</div>
+        </div>
+
+        <!-- Mid row: photo | attributes -->
+        <div class="card-mid-row">
+          <div class="card-photo-col">
+            <div class="player-photo">
+              <img src="https://a.espncdn.com/i/headshots/nfl/players/full/3054220.png" alt="Abdul Carter" onerror="this.style.display='none'">
+            </div>
+            <div class="phys-row">
+              <div class="phys-item"><div class="phys-val">6'3</div><div class="phys-lbl">Height</div></div>
+              <div class="phys-item"><div class="phys-val">259</div><div class="phys-lbl">Weight</div></div>
+              <div class="phys-item"><div class="phys-val">JR</div><div class="phys-lbl">Class</div></div>
+              <div class="phys-item"><div class="phys-val">22</div><div class="phys-lbl">Age</div></div>
+            </div>
+          </div>
+          <div class="card-attrs-col">
+            <div class="section-heading">Attributes</div>
+            <div class="attrs-grid">
+              <div class="attr-pill">
+                <div class="attr-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2C8.5 2 7 4.5 7 7c0 1.5.5 2.8 1.3 3.8C6 11.5 4 13.5 4 16c0 2.2 1.8 4 4 4h8c2.2 0 4-1.8 4-4 0-2.5-2-4.5-4.3-5.2C16.5 9.8 17 8.5 17 7c0-2.5-1.5-5-5-5z" fill="#5B0DCC" opacity=".25"/><circle cx="9" cy="8" r="1.5" fill="#5B0DCC"/><circle cx="15" cy="8" r="1.5" fill="#5B0DCC"/><circle cx="7" cy="12" r="1" fill="#5B0DCC"/><circle cx="17" cy="12" r="1" fill="#5B0DCC"/><circle cx="12" cy="14" r="1.5" fill="#5B0DCC"/></svg></div>
+                <div class="attr-text">Got That Dawg<br>In Him</div>
+              </div>
+              <div class="attr-pill">
+                <div class="attr-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M5 8l4 4-4 4" stroke="#5B0DCC" stroke-width="2" stroke-linecap="round"/><path d="M12 16h7M12 8h7" stroke="#5B0DCC" stroke-width="2" stroke-linecap="round"/></svg></div>
+                <div class="attr-text">Crafty<br>Finisher</div>
+              </div>
+              <div class="attr-pill">
+                <div class="attr-icon"><svg viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="2" stroke="#5B0DCC" stroke-width="1.5"/><path d="M8 12h8M12 8v8" stroke="#5B0DCC" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+                <div class="attr-text">Glass<br>Cleaner</div>
+              </div>
+              <div class="attr-pill">
+                <div class="attr-icon"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8" stroke="#5B0DCC" stroke-width="1.5"/><circle cx="12" cy="12" r="4" stroke="#5B0DCC" stroke-width="1.5"/><circle cx="12" cy="12" r="1.5" fill="#5B0DCC"/></svg></div>
+                <div class="attr-text">Midrange<br>Assassin</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Comparisons -->
+        <div class="card-comparisons">
+          <div class="section-heading" style="margin-bottom:8px;">Player Comparisons</div>
+          <div class="comps-row">
+            <div class="comp-card">
+              <div class="comp-silhouette"><img src="https://a.espncdn.com/i/headshots/nfl/players/full/4040715.png" onerror="this.style.display='none'"></div>
+              <div><div class="comp-name">Micah Parsons</div><div class="comp-pct">87% match</div></div>
+            </div>
+            <div class="comp-card">
+              <div class="comp-silhouette"><img src="https://a.espncdn.com/i/headshots/nfl/players/full/3054220.png" onerror="this.style.display='none'"></div>
+              <div><div class="comp-name">Myles Garrett</div><div class="comp-pct">74% match</div></div>
+            </div>
+            <div class="comp-card">
+              <div class="comp-silhouette"><img src="https://a.espncdn.com/i/headshots/nfl/players/full/3057264.png" onerror="this.style.display='none'"></div>
+              <div><div class="comp-name">T.J. Watt</div><div class="comp-pct">61% match</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-cta">
+          <button class="report-btn" onclick="toggleCard('card-carter')">See Full Player Report <span class="chev">▾</span></button>
+        </div>
+      </div>
+
+      <!-- EXPANDED -->
+      <div class="expanded-sections">
+        <div class="exp-section">
+          <div class="exp-sec-heading">Scouting Report</div>
+          <div class="scouting-text">Carter is a prototype edge rusher for the modern NFL — long, explosive, and technically advanced for his age. His first step quickness off the snap consistently puts offensive tackles on their heels, and his array of pass-rush moves (rip, spin, bull rush) shows elite refinement. Against the run, he sets the edge with physicality that belies his frame. The biggest question at the next level is positional fit — true 4-3 DE or 3-4 OLB? Either way, he's a top-five talent with Pro Bowl upside.</div>
+        </div>
+        <div class="exp-section">
+          <div class="exp-sec-heading">Key Stats</div>
+          <div class="stats-grid">
+            <div class="sg-item"><div class="sg-val">17.5</div><div class="sg-lbl">Sacks</div></div>
+            <div class="sg-item"><div class="sg-val">68</div><div class="sg-lbl">Tackles</div></div>
+            <div class="sg-item"><div class="sg-val">4.42</div><div class="sg-lbl">40 Time</div></div>
+            <div class="sg-item"><div class="sg-val">10</div><div class="sg-lbl">TFL</div></div>
+            <div class="sg-item"><div class="sg-val">3</div><div class="sg-lbl">Forced Fum</div></div>
+            <div class="sg-item"><div class="sg-val">35.5"</div><div class="sg-lbl">Vert</div></div>
+          </div>
+        </div>
+        <div class="exp-section">
+          <div class="exp-sec-heading">Draft Reactions</div>
+          <div class="reactions-row">
+            <div class="reaction-item" onclick="react(this)"><div class="reaction-emoji">👍</div><div class="reaction-label">Like</div><div class="reaction-pct">3%</div></div>
+            <div class="reaction-item active" onclick="react(this)"><div class="reaction-emoji">❤️</div><div class="reaction-label">Love</div><div class="reaction-pct">30%</div></div>
+            <div class="reaction-item" onclick="react(this)"><div class="reaction-emoji">🔥</div><div class="reaction-label">Fire</div><div class="reaction-pct">29%</div></div>
+            <div class="reaction-item" onclick="react(this)"><div class="reaction-emoji">🗑️</div><div class="reaction-label">Trash</div><div class="reaction-pct">5%</div></div>
+            <div class="reaction-item" onclick="react(this)"><div class="reaction-emoji">🏆</div><div class="reaction-label">Touchdown</div><div class="reaction-pct">2%</div></div>
+          </div>
+        </div>
+        <div class="exp-section">
+          <div class="exp-sec-heading">Expert Reactions</div>
+          <div class="expert-row">
+            <div class="expert-item">
+              <div class="expert-avatar" style="background:#5B0DCC;">MC</div>
+              <div class="expert-content">
+                <div class="expert-name">Mel Kiper Jr.</div>
+                <div class="expert-handle">@MelKiperESPN</div>
+                <div class="expert-quote">"Carter is the most complete edge prospect I've evaluated in five years. The Titans are getting a franchise cornerstone."</div>
+              </div>
+              <div class="expert-reaction">🔥</div>
+            </div>
+            <div class="expert-item">
+              <div class="expert-avatar" style="background:#1B2B4B;">DM</div>
+              <div class="expert-content">
+                <div class="expert-name">Daniel Jeremiah</div>
+                <div class="expert-handle">@MoveTheSticks</div>
+                <div class="expert-quote">"Elite motor, elite instincts. Carter brings it every single snap on tape. Can't teach that."</div>
+              </div>
+              <div class="expert-reaction">❤️</div>
+            </div>
+          </div>
+        </div>
+        <div class="grade-row">
+          <div class="grade-circle" style="background:#5B0DCC;">
+            <div class="grade-big">43</div>
+            <div class="grade-sm-lbl">Your Grade</div>
+          </div>
+          <div class="grade-boxes">
+            <div class="grade-box"><div class="grade-box-val">12</div><div class="grade-box-lbl">Fan Grade</div></div>
+            <div class="grade-box"><div class="grade-box-val">2</div><div class="grade-box-lbl">Expert Grade</div></div>
+          </div>
+          <div class="grade-ctas">
+            <button class="btn-full-report">Full Report</button>
+            <button class="btn-add-board">+ Draft Board</button>
+          </div>
+        </div>
+        <span class="collapse-link" onclick="toggleCard('card-carter')">▲ Collapse</span>
+      </div>
+    </div>
+    <!-- END CARD 1 -->
+
+
+    <!-- ══════════════════════
+         CARD 2 — Travis Hunter
+    ══════════════════════ -->
+    <div class="player-card" id="card-hunter">
+      <div class="card-header">
+        <span class="pick-badge">RD1, PK2</span>
+        <div class="header-team-logo"><img src="https://a.espncdn.com/i/teamlogos/nfl/500/cle.png" onerror="this.style.display='none'"></div>
+        <div><div class="card-name">Travis Hunter</div><div class="card-pos-school">WR/CB · Colorado</div></div>
+        <div class="header-right">
+          <span class="pos-badge pos-wr">WR</span>
+          <a class="card-link" href="#">View ↗</a>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <div class="card-teamfit">
+          <div class="section-heading">Team Fit</div>
+          <div class="team-fit-text">Travis Hunter is a generational two-way talent who can contribute as both a wide receiver and cornerback at the next level. His quickness off the line, elite ball tracking, and competitive motor make him a nightmare matchup on either side of the ball.</div>
+        </div>
+
+        <div class="card-mid-row">
+          <div class="card-photo-col">
+            <div class="player-photo">
+              <img src="https://a.espncdn.com/i/headshots/nfl/players/full/3116406.png" alt="Travis Hunter" onerror="this.style.display='none'">
+            </div>
+            <div class="phys-row">
+              <div class="phys-item"><div class="phys-val">5'11</div><div class="phys-lbl">Height</div></div>
+              <div class="phys-item"><div class="phys-val">185</div><div class="phys-lbl">Weight</div></div>
+              <div class="phys-item"><div class="phys-val">JR</div><div class="phys-lbl">Class</div></div>
+              <div class="phys-item"><div class="phys-val">21</div><div class="phys-lbl">Age</div></div>
+            </div>
+          </div>
+          <div class="card-attrs-col">
+            <div class="section-heading">Attributes</div>
+            <div class="attrs-grid">
+              <div class="attr-pill">
+                <div class="attr-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M13 2L4.5 13H11L10 22L19.5 11H13L13 2Z" fill="#5B0DCC" opacity=".25" stroke="#5B0DCC" stroke-width="1.5" stroke-linejoin="round"/></svg></div>
+                <div class="attr-text">Electric<br>After Catch</div>
+              </div>
+              <div class="attr-pill">
+                <div class="attr-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3l2.5 5 5.5.8-4 3.9.9 5.5L12 15.5l-4.9 2.7.9-5.5L4 8.8l5.5-.8L12 3z" fill="#5B0DCC" opacity=".25" stroke="#5B0DCC" stroke-width="1.5" stroke-linejoin="round"/></svg></div>
+                <div class="attr-text">Route<br>Wizard</div>
+              </div>
+              <div class="attr-pill">
+                <div class="attr-icon"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="9" stroke="#5B0DCC" stroke-width="1.5"/><path d="M8 12l3 3 5-6" stroke="#5B0DCC" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                <div class="attr-text">Two-Way<br>Threat</div>
+              </div>
+              <div class="attr-pill">
+                <div class="attr-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M12 4C9 4 6 6 6 9c0 4 6 11 6 11s6-7 6-11c0-3-3-5-6-5z" fill="#5B0DCC" opacity=".25" stroke="#5B0DCC" stroke-width="1.5"/><circle cx="12" cy="9" r="2" fill="#5B0DCC"/></svg></div>
+                <div class="attr-text">Field<br>Presence</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-comparisons">
+          <div class="section-heading" style="margin-bottom:8px;">Player Comparisons</div>
+          <div class="comps-row">
+            <div class="comp-card">
+              <div class="comp-silhouette"><img src="https://a.espncdn.com/i/headshots/nfl/players/full/3116406.png" onerror="this.style.display='none'"></div>
+              <div><div class="comp-name">Tyreek Hill</div><div class="comp-pct">83% match</div></div>
+            </div>
+            <div class="comp-card">
+              <div class="comp-silhouette"><img src="https://a.espncdn.com/i/headshots/nfl/players/full/4241389.png" onerror="this.style.display='none'"></div>
+              <div><div class="comp-name">CeeDee Lamb</div><div class="comp-pct">79% match</div></div>
+            </div>
+            <div class="comp-card">
+              <div class="comp-silhouette"><img src="https://a.espncdn.com/i/headshots/nfl/players/full/16800.png" onerror="this.style.display='none'"></div>
+              <div><div class="comp-name">Davante Adams</div><div class="comp-pct">65% match</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-cta">
+          <button class="report-btn" onclick="toggleCard('card-hunter')">See Full Player Report <span class="chev">▾</span></button>
+        </div>
+      </div>
+
+      <div class="expanded-sections">
+        <div class="exp-section">
+          <div class="exp-sec-heading">Scouting Report</div>
+          <div class="scouting-text">Hunter's tape at Colorado is unlike anything seen at the collegiate level. Playing both ways against Power Five competition, he posted elite production at WR while also holding his own as a starter at CB. His route running is technically sound, featuring sharp breaks, good use of leverage, and excellent body control at the catch point. On defense, his zone instincts and ability to locate the ball are well above average. The NFL will need to decide how to use him — but either answer is a win.</div>
+        </div>
+        <div class="exp-section">
+          <div class="exp-sec-heading">Key Stats</div>
+          <div class="stats-grid">
+            <div class="sg-item"><div class="sg-val">96</div><div class="sg-lbl">Receptions</div></div>
+            <div class="sg-item"><div class="sg-val">1,258</div><div class="sg-lbl">Rec Yards</div></div>
+            <div class="sg-item"><div class="sg-val">15</div><div class="sg-lbl">TDs</div></div>
+            <div class="sg-item"><div class="sg-val">4</div><div class="sg-lbl">INT (CB)</div></div>
+            <div class="sg-item"><div class="sg-val">4.38</div><div class="sg-lbl">40 Time</div></div>
+            <div class="sg-item"><div class="sg-val">36"</div><div class="sg-lbl">Vert</div></div>
+          </div>
+        </div>
+        <div class="exp-section">
+          <div class="exp-sec-heading">Draft Reactions</div>
+          <div class="reactions-row">
+            <div class="reaction-item" onclick="react(this)"><div class="reaction-emoji">👍</div><div class="reaction-label">Like</div><div class="reaction-pct">8%</div></div>
+            <div class="reaction-item active" onclick="react(this)"><div class="reaction-emoji">❤️</div><div class="reaction-label">Love</div><div class="reaction-pct">45%</div></div>
+            <div class="reaction-item" onclick="react(this)"><div class="reaction-emoji">🔥</div><div class="reaction-label">Fire</div><div class="reaction-pct">38%</div></div>
+            <div class="reaction-item" onclick="react(this)"><div class="reaction-emoji">🗑️</div><div class="reaction-label">Trash</div><div class="reaction-pct">2%</div></div>
+            <div class="reaction-item" onclick="react(this)"><div class="reaction-emoji">🏆</div><div class="reaction-label">Touchdown</div><div class="reaction-pct">7%</div></div>
+          </div>
+        </div>
+        <div class="exp-section">
+          <div class="exp-sec-heading">Expert Reactions</div>
+          <div class="expert-row">
+            <div class="expert-item">
+              <div class="expert-avatar" style="background:#d97706;">TM</div>
+              <div class="expert-content">
+                <div class="expert-name">Todd McShay</div>
+                <div class="expert-handle">@McShay</div>
+                <div class="expert-quote">"There's no blueprint for scouting Hunter. You just watch the tape and say yes. Best prospect in this class, full stop."</div>
+              </div>
+              <div class="expert-reaction">❤️</div>
+            </div>
+          </div>
+        </div>
+        <div class="grade-row">
+          <div class="grade-circle" style="background:#d97706;">
+            <div class="grade-big">47</div>
+            <div class="grade-sm-lbl">Your Grade</div>
+          </div>
+          <div class="grade-boxes">
+            <div class="grade-box"><div class="grade-box-val">18</div><div class="grade-box-lbl">Fan Grade</div></div>
+            <div class="grade-box"><div class="grade-box-val">5</div><div class="grade-box-lbl">Expert Grade</div></div>
+          </div>
+          <div class="grade-ctas">
+            <button class="btn-full-report">Full Report</button>
+            <button class="btn-add-board">+ Draft Board</button>
+          </div>
+        </div>
+        <span class="collapse-link" onclick="toggleCard('card-hunter')">▲ Collapse</span>
+      </div>
+    </div>
+    <!-- END CARD 2 -->
+
+
+    <!-- ══════════════════════
+         CARD 3 — Cam Ward
+    ══════════════════════ -->
+    <div class="player-card" id="card-ward">
+      <div class="card-header">
+        <span class="pick-badge">RD1, PK3</span>
+        <div class="header-team-logo"><img src="https://a.espncdn.com/i/teamlogos/nfl/500/nyg.png" onerror="this.style.display='none'"></div>
+        <div><div class="card-name">Cam Ward</div><div class="card-pos-school">QB · Miami</div></div>
+        <div class="header-right">
+          <span class="pos-badge pos-qb">QB</span>
+          <a class="card-link" href="#">View ↗</a>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <div class="card-teamfit">
+          <div class="section-heading">Team Fit</div>
+          <div class="team-fit-text">Cam Ward is a composed, pro-ready signal caller who processes the field quickly and commands the pocket with authority. His strong arm and touch on intermediate routes give him the tools to succeed in a West Coast system, and his composure under pressure separates him from peers at the position.</div>
+        </div>
+
+        <div class="card-mid-row">
+          <div class="card-photo-col">
+            <div class="player-photo">
+              <img src="https://a.espncdn.com/i/headshots/nfl/players/full/3918298.png" alt="Cam Ward" onerror="this.style.display='none'">
+            </div>
+            <div class="phys-row">
+              <div class="phys-item"><div class="phys-val">6'2</div><div class="phys-lbl">Height</div></div>
+              <div class="phys-item"><div class="phys-val">223</div><div class="phys-lbl">Weight</div></div>
+              <div class="phys-item"><div class="phys-val">SR</div><div class="phys-lbl">Class</div></div>
+              <div class="phys-item"><div class="phys-val">23</div><div class="phys-lbl">Age</div></div>
+            </div>
+          </div>
+          <div class="card-attrs-col">
+            <div class="section-heading">Attributes</div>
+            <div class="attrs-grid">
+              <div class="attr-pill">
+                <div class="attr-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3C8 3 5 6 5 9.5c0 2 .8 3.8 2 5l5 6.5 5-6.5c1.2-1.2 2-3 2-5C19 6 16 3 12 3z" fill="#5B0DCC" opacity=".25" stroke="#5B0DCC" stroke-width="1.5"/><path d="M12 7v5l3 2" stroke="#5B0DCC" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+                <div class="attr-text">Ice<br>Veins</div>
+              </div>
+              <div class="attr-pill">
+                <div class="attr-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M4 12c0-4 3.6-7 8-7s8 3 8 7-3.6 7-8 7" stroke="#5B0DCC" stroke-width="1.5" stroke-linecap="round"/><path d="M8 15l4-4 4 4" stroke="#5B0DCC" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                <div class="attr-text">Deep Ball<br>Dealer</div>
+              </div>
+              <div class="attr-pill">
+                <div class="attr-icon"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="7" stroke="#5B0DCC" stroke-width="1.5"/><path d="M9 12l2 2 4-4" stroke="#5B0DCC" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                <div class="attr-text">Pocket<br>Commander</div>
+              </div>
+              <div class="attr-pill">
+                <div class="attr-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M6 18l6-6 6 6M6 12l6-6 6 6" stroke="#5B0DCC" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                <div class="attr-text">High Floor<br>Safety</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-comparisons">
+          <div class="section-heading" style="margin-bottom:8px;">Player Comparisons</div>
+          <div class="comps-row">
+            <div class="comp-card">
+              <div class="comp-silhouette"><img src="https://a.espncdn.com/i/headshots/nfl/players/full/3918298.png" onerror="this.style.display='none'"></div>
+              <div><div class="comp-name">Josh Allen</div><div class="comp-pct">71% match</div></div>
+            </div>
+            <div class="comp-card">
+              <div class="comp-silhouette"><img src="https://a.espncdn.com/i/headshots/nfl/players/full/3916387.png" onerror="this.style.display='none'"></div>
+              <div><div class="comp-name">Lamar Jackson</div><div class="comp-pct">68% match</div></div>
+            </div>
+            <div class="comp-card">
+              <div class="comp-silhouette"><img src="https://a.espncdn.com/i/headshots/nfl/players/full/2577417.png" onerror="this.style.display='none'"></div>
+              <div><div class="comp-name">Dak Prescott</div><div class="comp-pct">59% match</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-cta">
+          <button class="report-btn" onclick="toggleCard('card-ward')">See Full Player Report <span class="chev">▾</span></button>
+        </div>
+      </div>
+
+      <div class="expanded-sections">
+        <div class="exp-section">
+          <div class="exp-sec-heading">Scouting Report</div>
+          <div class="scouting-text">Ward's college tape is as clean as any QB prospect in recent memory. His ability to go through progressions quickly, identify coverage pre-snap, and deliver with consistent accuracy on timing routes gives evaluators confidence he won't need an extended development period. His arm talent is above average — not elite — but his football IQ and decision-making compensate fully. He won't make many big mistakes, and in the right offensive system, he'll win games from the start of Year 1.</div>
+        </div>
+        <div class="exp-section">
+          <div class="exp-sec-heading">Key Stats</div>
+          <div class="stats-grid">
+            <div class="sg-item"><div class="sg-val">4,123</div><div class="sg-lbl">Pass Yards</div></div>
+            <div class="sg-item"><div class="sg-val">39</div><div class="sg-lbl">TDs</div></div>
+            <div class="sg-item"><div class="sg-val">7</div><div class="sg-lbl">INTs</div></div>
+            <div class="sg-item"><div class="sg-val">68.4%</div><div class="sg-lbl">Comp %</div></div>
+            <div class="sg-item"><div class="sg-val">9.1</div><div class="sg-lbl">Y/Att</div></div>
+            <div class="sg-item"><div class="sg-val">4.65</div><div class="sg-lbl">40 Time</div></div>
+          </div>
+        </div>
+        <div class="exp-section">
+          <div class="exp-sec-heading">Draft Reactions</div>
+          <div class="reactions-row">
+            <div class="reaction-item" onclick="react(this)"><div class="reaction-emoji">👍</div><div class="reaction-label">Like</div><div class="reaction-pct">12%</div></div>
+            <div class="reaction-item" onclick="react(this)"><div class="reaction-emoji">❤️</div><div class="reaction-label">Love</div><div class="reaction-pct">22%</div></div>
+            <div class="reaction-item active" onclick="react(this)"><div class="reaction-emoji">🔥</div><div class="reaction-label">Fire</div><div class="reaction-pct">35%</div></div>
+            <div class="reaction-item" onclick="react(this)"><div class="reaction-emoji">🗑️</div><div class="reaction-label">Trash</div><div class="reaction-pct">8%</div></div>
+            <div class="reaction-item" onclick="react(this)"><div class="reaction-emoji">🏆</div><div class="reaction-label">Touchdown</div><div class="reaction-pct">4%</div></div>
+          </div>
+        </div>
+        <div class="exp-section">
+          <div class="exp-sec-heading">Expert Reactions</div>
+          <div class="expert-row">
+            <div class="expert-item">
+              <div class="expert-avatar" style="background:#dc2626;">PK</div>
+              <div class="expert-content">
+                <div class="expert-name">Peter King</div>
+                <div class="expert-handle">@Peter_King</div>
+                <div class="expert-quote">"Ward is the most NFL-ready QB since Luck came out. The football IQ is off the charts for a 23-year-old."</div>
+              </div>
+              <div class="expert-reaction">🔥</div>
+            </div>
+          </div>
+        </div>
+        <div class="grade-row">
+          <div class="grade-circle" style="background:#dc2626;">
+            <div class="grade-big">43</div>
+            <div class="grade-sm-lbl">Your Grade</div>
+          </div>
+          <div class="grade-boxes">
+            <div class="grade-box"><div class="grade-box-val">12</div><div class="grade-box-lbl">Fan Grade</div></div>
+            <div class="grade-box"><div class="grade-box-val">2</div><div class="grade-box-lbl">Expert Grade</div></div>
+          </div>
+          <div class="grade-ctas">
+            <button class="btn-full-report">Full Report</button>
+            <button class="btn-add-board">+ Draft Board</button>
+          </div>
+        </div>
+        <span class="collapse-link" onclick="toggleCard('card-ward')">▲ Collapse</span>
+      </div>
+    </div>
+    <!-- END CARD 3 -->
+
+  </div><!-- end col-center -->
+
+  <!-- RIGHT COLUMN -->
+  <div class="col-right">
+    <div class="col-label">Trending</div>
+    <div class="side-module">
+      <div class="side-module-title">Rising Stocks</div>
+      <div class="side-player-row">
+        <div class="side-rank">↑</div>
+        <div class="side-avatar"></div>
+        <div class="side-info"><div class="side-name">Tetairoa McMillan</div><div class="side-meta">WR · Arizona</div></div>
+        <div class="side-adp up">+2.1</div>
+      </div>
+      <div class="side-player-row">
+        <div class="side-rank">↑</div>
+        <div class="side-avatar"></div>
+        <div class="side-info"><div class="side-name">Tyler Warren</div><div class="side-meta">TE · Penn State</div></div>
+        <div class="side-adp up">+1.8</div>
+      </div>
+      <div class="side-player-row">
+        <div class="side-rank">↓</div>
+        <div class="side-avatar"></div>
+        <div class="side-info"><div class="side-name">Shedeur Sanders</div><div class="side-meta">QB · Colorado</div></div>
+        <div class="side-adp dn">−3.2</div>
+      </div>
+    </div>
+    <div class="side-module">
+      <div class="side-module-title">Deep Dives</div>
+      <div style="font-size:11px;line-height:1.55;color:#374151;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid #f3f4f6;">Why Abdul Carter could redefine the LB position in the modern NFL</div>
+      <div style="font-size:11px;line-height:1.55;color:#374151;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid #f3f4f6;">Travis Hunter: scouting both sides of his two-way game</div>
+      <div style="font-size:11px;line-height:1.55;color:#374151;">Cam Ward's tape shows why he's the most polished QB in this class</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function toggleCard(cardId) {
+  const card = document.getElementById(cardId);
+  card.classList.toggle('expanded');
+  if (card.classList.contains('expanded')) {
+    setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
+  }
+}
+function react(el) {
+  el.closest('.reactions-row').querySelectorAll('.reaction-item').forEach(r => r.classList.remove('active'));
+  el.classList.add('active');
+}
+</script>
+</body>
+</html>
